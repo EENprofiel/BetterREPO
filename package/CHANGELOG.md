@@ -1,0 +1,9 @@
+# Changelog
+
+## 1.0.0
+
+- Initial public release of BetterREPO.
+- Curated 30-package multiplayer profile.
+- Includes LateRepo Fix alongside LateRepo.
+- Includes tested gameplay and quality-of-life configuration.
+- Includes additional levels, extra valuables, progression improvements, and small fun additions.

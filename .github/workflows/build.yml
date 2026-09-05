@@ -1,0 +1,39 @@
+name: Validate and build
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/validate.py
+      - run: python scripts/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BetterREPO-package
+          path: dist/BetterREPO-*.zip
+          if-no-files-found: error
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/validate.py --tag "${GITHUB_REF_NAME}"
+      - run: python scripts/build.py
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/BetterREPO-*.zip --title "BetterREPO ${GITHUB_REF_NAME#v}" --generate-notes
