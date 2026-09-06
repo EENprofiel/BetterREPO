@@ -21,7 +21,7 @@ Thunderstore is the distribution channel. This repository is the source of truth
 9. GitHub Actions builds the ZIP and creates a GitHub Release.
 10. Upload the generated ZIP to Thunderstore.
 
-The sync script updates enabled dependencies and only refreshes config files that are already tracked in `package/config/`. Unknown configs and local profile files are ignored intentionally.
+The sync script only accepts Thunderstore-shaped package identifiers, excludes the installed BetterREPO package itself and other local/non-package entries, and only refreshes tracked config files when their effective settings actually change. Unknown configs and local profile files are ignored intentionally.
 
 ## Removing mods
 

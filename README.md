@@ -26,7 +26,7 @@ MAINTENANCE.md            Release and versioning workflow
 
 ## Current version
 
-**1.0.0**
+**1.1.0**
 
 The `package/` directory is the source of truth for the Thunderstore package.
 

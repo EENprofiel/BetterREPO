@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Added `Maflingus-TruckLoot` 1.0.4.
+- Valuables left inside the truck can now persist between levels and be sold at extraction points on a later level.
+- Curated profile now contains 31 Thunderstore dependencies.
+
 ## 1.0.0
 
 - Initial public release of BetterREPO.
