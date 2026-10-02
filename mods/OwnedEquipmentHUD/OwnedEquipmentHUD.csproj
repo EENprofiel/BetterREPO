@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>OwnedEquipmentHUD</AssemblyName>
+    <RootNamespace>OwnedEquipmentHUD</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.0</Version>
+    <RepositoryUrl>https://github.com/</RepositoryUrl>
+
+    <!-- Override these properties on the command line for a local R.E.P.O. install. -->
+    <RepoGameDir Condition="'$(RepoGameDir)' == ''">$(REPO_GAME_DIR)</RepoGameDir>
+    <BepInExDir Condition="'$(BepInExDir)' == ''">$(RepoGameDir)\BepInEx</BepInExDir>
+    <ManagedDir Condition="'$(ManagedDir)' == ''">$(RepoGameDir)\REPO_Data\Managed</ManagedDir>
+    <BuildOutputDir Condition="'$(BuildOutputDir)' == ''">$(MSBuildProjectDirectory)\dist</BuildOutputDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+  </ItemGroup>
+
+  <!-- BepInEx and Harmony are runtime dependencies and are never bundled. -->
+  <ItemGroup>
+    <Reference Include="BepInEx" HintPath="$(BepInExDir)\core\BepInEx.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExDir)\core\0Harmony.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Unity references are runtime dependencies and are never bundled. -->
+  <ItemGroup>
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.IMGUIModule" HintPath="$(ManagedDir)\UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(ManagedDir)\UnityEngine.PhysicsModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedDir)\UnityEngine.TextRenderingModule.dll" Private="false" />
+  </ItemGroup>
+
+  <!--
+    The plugin deliberately has no compile-time Assembly-CSharp reference.
+    R.E.P.O. game types are resolved at runtime so the item reader can tolerate
+    game updates and modded equipment without shipping a vanilla item catalog.
+  -->
+
+  <Target Name="CopyPluginToDist" AfterTargets="Build">
+    <MakeDir Directories="$(BuildOutputDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BuildOutputDir)" />
+  </Target>
+
+  <Target Name="PackageThunderstoreMod" AfterTargets="CopyPluginToDist">
+    <PropertyGroup>
+      <ThunderstorePackageDir>$(BuildOutputDir)\package</ThunderstorePackageDir>
+      <ThunderstoreZip>$(BuildOutputDir)\OwnedEquipmentHUD-$(Version).zip</ThunderstoreZip>
+    </PropertyGroup>
+    <MakeDir Directories="$(ThunderstorePackageDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstorePackageDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\manifest.json;$(MSBuildProjectDirectory)\README.md;$(MSBuildProjectDirectory)\CHANGELOG.md;$(MSBuildProjectDirectory)\docs\PERSISTENCE-RESEARCH.md" DestinationFolder="$(ThunderstorePackageDir)" />
+    <ZipDirectory SourceDirectory="$(ThunderstorePackageDir)" DestinationFile="$(ThunderstoreZip)" Overwrite="true" />
+    <Message Text="Thunderstore package created at $(ThunderstoreZip)" Importance="high" />
+  </Target>
+</Project>

@@ -1,0 +1,9 @@
+{
+  "name": "BetterReviveHealth",
+  "version_number": "1.0.0",
+  "website_url": "https://thunderstore.io/c/repo/",
+  "description": "Configures the health granted by R.E.P.O.'s normal extraction-point revival.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2305"
+  ]
+}

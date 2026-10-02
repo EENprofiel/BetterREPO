@@ -1,0 +1,11 @@
+{
+  "name": "VanillaOrModded",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "Vote for a vanilla, modded, or random map type; the host then selects a non-repeating map while keeping its name a surprise.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2305",
+    "nickklmao-MenuLib-2.5.4",
+    "Zehs-REPOLib-4.2.0"
+  ]
+}

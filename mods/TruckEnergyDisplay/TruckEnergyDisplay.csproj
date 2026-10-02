@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion><Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>TruckEnergyDisplay</AssemblyName><RootNamespace>TruckEnergyDisplay</RootNamespace>
+    <Version>1.2.0</Version><Deterministic>true</Deterministic>
+    <RepoGameDir Condition="'$(RepoGameDir)' == ''">$(REPO_GAME_DIR)</RepoGameDir>
+    <ManagedDir Condition="'$(ManagedDir)' == ''">$(RepoGameDir)/REPO_Data/Managed</ManagedDir>
+    <BepInExCoreDir Condition="'$(BepInExCoreDir)' == ''">$(RepoGameDir)/BepInEx/core</BepInExCoreDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
+    <Reference Include="BepInEx" HintPath="$(BepInExCoreDir)/BepInEx.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExCoreDir)/0Harmony.dll" Private="false" />
+    <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)/Assembly-CSharp.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)/UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)/UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedDir)/UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(ManagedDir)/UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(ManagedDir)/UnityEngine.UI.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(ManagedDir)/Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="PhotonUnityNetworking" HintPath="$(ManagedDir)/PhotonUnityNetworking.dll" Private="false" />
+    <Reference Include="PhotonRealtime" HintPath="$(ManagedDir)/PhotonRealtime.dll" Private="false" />
+    <Reference Include="Photon3Unity3D" HintPath="$(ManagedDir)/Photon3Unity3D.dll" Private="false" />
+  </ItemGroup>
+  <Target Name="CheckReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(ManagedDir)/Assembly-CSharp.dll')" Text="Set REPO_GAME_DIR or ManagedDir to your installed game's managed assemblies." />
+    <Error Condition="!Exists('$(BepInExCoreDir)/BepInEx.dll')" Text="Set BepInExCoreDir to the mod profile's BepInEx/core directory." />
+  </Target>
+</Project>
