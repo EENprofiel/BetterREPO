@@ -26,3 +26,7 @@ The sync script only accepts Thunderstore-shaped package identifiers, excludes t
 ## Removing mods
 
 Removing a dependency from the modpack does not guarantee that an already-installed copy disappears from an existing r2modman profile. Mention removals clearly in the changelog. For disruptive removals, consider a major version and recommend a clean profile.
+
+## Mods
+
+Mod source lives in `mods/<ModName>/`, separate from the modpack in `package/`. Mods are versioned, built and published on their own schedule; the modpack's version and CI only cover `package/`. See [mods/README.md](mods/README.md) for build notes. Changing a mod does not require a modpack release unless the pack's pinned dependency on it changes.

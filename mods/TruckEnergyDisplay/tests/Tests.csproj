@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><OutputType>Exe</OutputType><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../EnergyModel.cs" Link="EnergyModel.cs" />
+    <Compile Include="../IlReader.cs" Link="IlReader.cs" />
+    <Compile Include="../MechanicsDiscovery.cs" Link="MechanicsDiscovery.cs" />
+    <Compile Include="../SnapshotProtocol.cs" Link="SnapshotProtocol.cs" />
+  </ItemGroup>
+</Project>

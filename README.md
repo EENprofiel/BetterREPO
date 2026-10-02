@@ -8,7 +8,14 @@ BetterREPO is a curated multiplayer pack focused on quality-of-life improvements
 
 ## Repository layout
 
+This repository holds the modpack and the source for the mods built alongside it.
+
 ```text
+mods/                    One folder per mod (source, README, build files)
+  VanillaOrModded/
+  TruckEnergyDisplay/
+  OwnedEquipmentHUD/
+  BetterReviveHealth/
 package/                 Exact files packaged for Thunderstore
   manifest.json          Package metadata, version and pinned dependencies
   README.md              Thunderstore page content
@@ -23,6 +30,8 @@ scripts/
   build.yml              CI validation, build artifacts and tagged GitHub releases
 MAINTENANCE.md            Release and versioning workflow
 ```
+
+See [mods/README.md](mods/README.md) for the list of mods, how to build them and how to add a new one.
 
 ## Current version
 

@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>BetterReviveHealth</AssemblyName>
+    <RootNamespace>BetterReviveHealth</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+  </PropertyGroup>
+
+  <!--
+    The plugin intentionally has no compile-time reference to Assembly-CSharp.
+    It resolves the verified R.E.P.O. types and members at plugin startup, so
+    the project needs the standard BepInEx loader/Harmony assemblies and the
+    game's UnityEngine.dll for BaseUnityPlugin's MonoBehaviour base type.
+
+    Pass -p:BepInExDir="<R.E.P.O.>\BepInEx" when building if MSBuild cannot
+    infer the location from the environment.
+  -->
+  <PropertyGroup>
+    <BepInExDir Condition="'$(BepInExDir)' == '' and '$(REPO_GAME_DIR)' != ''">$(REPO_GAME_DIR)\BepInEx</BepInExDir>
+    <BepInExDir Condition="'$(BepInExDir)' == '' and '$(GameDir)' != ''">$(GameDir)\BepInEx</BepInExDir>
+    <BepInExCoreDir>$(BepInExDir)\core</BepInExCoreDir>
+    <GameManagedDir Condition="'$(GameDir)' != ''">$(GameDir)\REPO_Data\Managed</GameManagedDir>
+    <GameManagedDir Condition="'$(GameManagedDir)' == '' and '$(REPO_GAME_DIR)' != ''">$(REPO_GAME_DIR)\REPO_Data\Managed</GameManagedDir>
+    <GameManagedDir Condition="'$(GameManagedDir)' == '' and '$(BepInExDir)' != ''">$(BepInExDir)\..\REPO_Data\Managed</GameManagedDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExCoreDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PrepareThunderstorePackage" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(ProjectDir)dist\BepInEx\plugins\BetterReviveHealth" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)dist\BepInEx\plugins\BetterReviveHealth" />
+    <Copy SourceFiles="$(ProjectDir)README.md" DestinationFolder="$(ProjectDir)dist" />
+    <Copy SourceFiles="$(ProjectDir)thunderstore\manifest.json" DestinationFolder="$(ProjectDir)dist" />
+  </Target>
+</Project>

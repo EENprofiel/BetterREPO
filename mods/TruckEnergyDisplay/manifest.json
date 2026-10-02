@@ -1,0 +1,9 @@
+{
+  "name": "TruckEnergyDisplay",
+  "version_number": "1.2.0",
+  "website_url": "",
+  "description": "Shop-only truck energy HUD with host-synced crystal requirements and checkout predictions.",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2100"
+  ]
+}
