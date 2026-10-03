@@ -50,10 +50,9 @@ TruckEnergyDisplay also has an executable check project in `tests/` and a `packa
 | Check | Covers |
 | --- | --- |
 | Layout and versions | All four mods. Required files, 256x256 icon, manifest, changelog heading and code version agree (`scripts/check_mods.py`). |
-| TruckEnergyDisplay tests | The executable checks in `TruckEnergyDisplay/tests`. The check against the real game assembly only runs when you pass a game folder locally. |
-| VanillaOrModded build and tests | A Release build, using the NuGet game libraries and MenuLib and REPOLib downloaded from Thunderstore. Runs test projects in `VanillaOrModded/tests/` or `VanillaOrModded/*.Tests/` once they exist. |
+| Build and test all mods | A Release build of every mod against the NuGet stub packages (see Building), with MenuLib and REPOLib downloaded from Thunderstore for VanillaOrModded. Then every test project in `mods/*/tests/` or `mods/*/*.Tests/`, which includes the TruckEnergyDisplay checks. |
 
-CI does not build TruckEnergyDisplay, OwnedEquipmentHUD or BetterReviveHealth. They compile against the game's own DLLs, which are not in the repository. A compile error in those mods is only found when you build locally. To change that, publicized or stub reference assemblies for these mods must be added to CI later.
+The stubs have no method bodies. CI proves that the code compiles and that the tests pass. It cannot prove that a mod works in the game. The check of TruckEnergyDisplay against the real game assembly only runs when you pass a game folder locally. In-game testing stays a manual step.
 
 ## Releasing a mod
 

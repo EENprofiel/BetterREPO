@@ -41,13 +41,11 @@ Each mod has its own version and its own tag: `<ModName>-vX.Y.Z`, for example `V
 4. Merge to `main`, then create and push the tag: `git tag VanillaOrModded-v1.0.1 && git push origin VanillaOrModded-v1.0.1`.
 5. The `Mod release` workflow checks that the tag, manifest and changelog agree, builds the mod, and creates a GitHub release with `<ModName>-X.Y.Z.zip` attached.
 
-Only VanillaOrModded can be built in CI. For the other mods, build locally and then:
+All four mods can be released from CI. The release builds against the same NuGet stub packages as the normal CI build. The DLL does not contain the stubs. It binds to the real game assemblies when the game loads it.
 
-1. `dotnet build -c Release` in the mod folder.
-2. `python scripts/package_mod.py <ModName>`. This writes `dist/<ModName>-X.Y.Z.zip`.
-3. `gh release create <ModName>-vX.Y.Z dist/<ModName>-X.Y.Z.zip --generate-notes`.
+To package a mod locally instead, run `dotnet build -c Release` in the mod folder, then `python scripts/package_mod.py <ModName>`. This writes `dist/<ModName>-X.Y.Z.zip`.
 
-The workflow stops with a clear error if one of these mods is tagged and pushed without a local release.
+A release is only a build. Test the mod in the game before you push the tag.
 
 ### Thunderstore upload
 

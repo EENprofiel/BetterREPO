@@ -16,39 +16,24 @@ jobs:
         with:
           python-version: "3.12"
       - name: Read tag
-        id: tag
         run: |
-          echo "mod=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_OUTPUT"
-          echo "version=${GITHUB_REF_NAME##*-v}" >> "$GITHUB_OUTPUT"
-          echo "ci_build=$(python -c "import json,sys; print(str(json.load(open('scripts/mods.json')).get('${GITHUB_REF_NAME%-v*}', {}).get('ci_build', False)).lower())")" >> "$GITHUB_OUTPUT"
+          echo "MOD=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_ENV"
+          echo "VERSION=${GITHUB_REF_NAME##*-v}" >> "$GITHUB_ENV"
       - name: Check manifest, changelog and tag
         run: python scripts/check_mods.py --tag "$GITHUB_REF_NAME"
-      - name: Stop when CI cannot build this mod
-        if: steps.tag.outputs.ci_build != 'true'
+      - uses: ./.github/actions/setup-mods
+      - name: Build and test
         run: |
-          echo "::error::${{ steps.tag.outputs.mod }} needs game assemblies that CI does not have. Build it locally, run scripts/package_mod.py and attach the ZIP with 'gh release create'. See MAINTENANCE.md."
-          exit 1
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      - name: Fetch MenuLib and REPOLib reference DLLs
-        working-directory: mods/VanillaOrModded
-        run: |
-          mkdir -p lib
-          fetch() {
-            curl -fsSL -o "$RUNNER_TEMP/$2.zip" "https://thunderstore.io/package/download/$1/$2/$3/"
-            unzip -j -o "$RUNNER_TEMP/$2.zip" "*$2.dll" -d lib
-          }
-          fetch nickklmao MenuLib 2.5.4
-          fetch Zehs REPOLib 4.2.0
-      - run: dotnet build "mods/${{ steps.tag.outputs.mod }}/${{ steps.tag.outputs.mod }}.csproj" -c Release
-      - run: python scripts/package_mod.py "${{ steps.tag.outputs.mod }}"
+          dotnet build "mods/$MOD/$MOD.csproj" -c Release
+          shopt -s nullglob
+          for p in mods/$MOD/tests/*.csproj mods/$MOD/*.Tests/*.csproj; do
+            dotnet run --project "$p" -c Release || exit 1
+          done
+      - run: python scripts/package_mod.py "$MOD"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "$GITHUB_REF_NAME" "dist/${{ steps.tag.outputs.mod }}-${{ steps.tag.outputs.version }}.zip" \
-            --title "${{ steps.tag.outputs.mod }} ${{ steps.tag.outputs.version }}" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" "dist/$MOD-$VERSION.zip" --title "$MOD $VERSION" --generate-notes
       - name: Publish to Thunderstore
         if: env.THUNDERSTORE_TOKEN != ''
         run: |
@@ -56,7 +41,7 @@ jobs:
           export PATH="$PATH:$HOME/.dotnet/tools"
           python - <<'PY' > "$RUNNER_TEMP/thunderstore.toml"
           import json, os
-          mod = os.environ["GITHUB_REF_NAME"].rsplit("-v", 1)[0]
+          mod = os.environ["MOD"]
           meta = json.load(open("scripts/mods.json"))[mod]
           m = json.load(open(f"mods/{mod}/manifest.json"))
           print('[config]\nschemaVersion = "0.0.1"\n\n[package]')
@@ -69,4 +54,4 @@ jobs:
           print('\n[publish]\nrepository = "https://thunderstore.io"\ncommunities = ["repo"]')
           print("categories = " + json.dumps(meta["categories"]))
           PY
-          tcli publish --config-path "$RUNNER_TEMP/thunderstore.toml" --file "dist/${{ steps.tag.outputs.mod }}-${{ steps.tag.outputs.version }}.zip" --token "$THUNDERSTORE_TOKEN"
+          tcli publish --config-path "$RUNNER_TEMP/thunderstore.toml" --file "dist/$MOD-$VERSION.zip" --token "$THUNDERSTORE_TOKEN"
