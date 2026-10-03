@@ -102,16 +102,12 @@ internal sealed class OwnedEquipmentReader
         }
 
         object? maxPurchase = GameApi.GetMemberValue(item, "maxPurchase");
-        if (maxPurchase is bool hasLimit && !hasLimit)
-        {
-            return 0;
-        }
-
         object? amount = GameApi.GetMemberValue(item, "maxPurchaseAmount");
         try
         {
-            int limit = amount == null ? 0 : Convert.ToInt32(amount);
-            return limit > 0 ? limit : 0;
+            return PurchaseLimit.Resolve(
+                maxPurchase as bool?,
+                amount == null ? null : Convert.ToInt32(amount));
         }
         catch
         {

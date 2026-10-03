@@ -35,15 +35,24 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
         HudDisplayMode displayMode,
         bool compact)
     {
-        float scale = Mathf.Clamp(Screen.height / 1080f, 0.75f, 1.35f);
+        float scale = HudLayout.Scale(Screen.height);
         float density = compact ? 0.8f : 1f;
         EnsureStyles(scale * density);
 
         bool hasContext = focusedItem != null;
-        bool iconsOnly = displayMode == HudDisplayMode.Icons;
         bool wantsIcons = displayMode != HudDisplayMode.Text;
+        int entryCount = showList ? snapshot.Entries.Count : 0;
 
-        float margin = 8f * scale;
+        PanelLayout layout = HudLayout.Compute(
+            Screen.width,
+            Screen.height,
+            entryCount,
+            maxVisibleRows,
+            showList,
+            hasContext,
+            displayMode,
+            compact);
+
         float padding = 14f * scale * density;
         float titleHeight = showList ? 28f * scale * density : 0f;
         float iconSize = 20f * scale * density;
@@ -51,35 +60,13 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
         float footerHeight = 20f * scale * density;
         float contextHeight = hasContext ? 38f * scale * density : 0f;
         float countWidth = 64f * scale * density;
-
-        float baseWidth = compact ? 270f : 370f;
-        if (iconsOnly)
-        {
-            baseWidth = compact ? 190f : 250f;
-        }
-
-        // Never wider than the screen, so ultrawide and small screens both fit.
-        float width = Mathf.Min(baseWidth * scale, Screen.width - margin * 2f);
-
-        float rightMargin = 22f * scale;
-        float topMargin = 86f * scale;
-        float x = Mathf.Max(margin, Screen.width - width - rightMargin);
-        float y = Mathf.Clamp(topMargin, margin, Mathf.Max(margin, Screen.height * 0.5f));
-
-        // Limit the rows by config and by the space left below the panel's top edge.
-        int entryCount = showList ? snapshot.Entries.Count : 0;
-        int rowLimit = Mathf.Clamp(maxVisibleRows, 1, 50);
-        float fixedHeight = padding * 2f + titleHeight + contextHeight;
-        float availableRows = (Screen.height - margin - y - fixedHeight - footerHeight) / rowHeight;
-        int screenRowLimit = Mathf.Max(1, Mathf.FloorToInt(availableRows));
-        rowLimit = Math.Min(rowLimit, screenRowLimit);
-
-        int visibleRows = showList
-            ? Math.Max(1, Math.Min(rowLimit, Math.Max(entryCount, 1)))
-            : 0;
-        bool scrollable = showList && entryCount > visibleRows;
-        float contentHeight = showList ? visibleRows * rowHeight : 0f;
-        float height = fixedHeight + contentHeight + (scrollable ? footerHeight : 0f);
+        float x = layout.X;
+        float y = layout.Y;
+        float width = layout.Width;
+        float height = layout.Height;
+        int visibleRows = layout.VisibleRows;
+        bool scrollable = layout.Scrollable;
+        float contentHeight = visibleRows * rowHeight;
 
         Rect panelRect = new Rect(x, y, width, height);
 
@@ -120,8 +107,7 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
                         rowHeight,
                         iconSize,
                         countWidth,
-                        wantsIcons,
-                        displayMode == HudDisplayMode.Both,
+                        displayMode,
                         compact);
                 }
 
@@ -146,12 +132,8 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
                 y + height - contextHeight - padding * 0.45f,
                 width - padding * 2f,
                 contextHeight);
-            string owned = focusedItem.Limit > 0
-                ? $"{focusedItem.OwnedCount}/{focusedItem.Limit}"
-                : focusedItem.OwnedCount.ToString();
-            string afterPurchase = focusedItem.Limit > 0 && focusedItem.OwnedCount >= focusedItem.Limit
-                ? "Limit reached"
-                : $"After purchase: {focusedItem.OwnedCount + 1}";
+            string owned = PurchaseLimit.FormatOwned(focusedItem.OwnedCount, focusedItem.Limit);
+            string afterPurchase = PurchaseLimit.FormatAfterPurchase(focusedItem.OwnedCount, focusedItem.Limit);
             string context =
                 $"{TrimName(focusedItem.DisplayName, compact ? 20 : 29)}  |  Owned: {owned}\n" +
                 afterPurchase;
@@ -166,14 +148,13 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
         float rowHeight,
         float iconSize,
         float countWidth,
-        bool wantsIcons,
-        bool showNameWithIcon,
+        HudDisplayMode displayMode,
         bool compact)
     {
         float gap = 4f;
         Rect countRect = new Rect(contentWidth - countWidth, rowY, countWidth, rowHeight);
         float left = 0f;
-        bool hasIcon = wantsIcons && entry.Icon != null;
+        bool hasIcon = HudLayout.ShowsIcon(displayMode, entry.Icon != null);
 
         if (hasIcon)
         {
@@ -192,13 +173,13 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
 
         // Text is drawn unless the row has an icon and the mode is icons only.
         // An item with no icon therefore always falls back to its name.
-        if (!hasIcon || showNameWithIcon)
+        if (HudLayout.ShowsName(displayMode, entry.Icon != null))
         {
             Rect nameRect = new Rect(left, rowY, countRect.x - left - gap, rowHeight);
             GUI.Label(nameRect, TrimName(entry.DisplayName, compact ? 22 : 31), _rowNameStyle!);
         }
 
-        string count = entry.Limit > 0 ? $"x{entry.Count}/{entry.Limit}" : $"x{entry.Count}";
+        string count = PurchaseLimit.FormatCount(entry.Count, entry.Limit);
         GUI.Label(countRect, count, _rowCountStyle!);
     }
 

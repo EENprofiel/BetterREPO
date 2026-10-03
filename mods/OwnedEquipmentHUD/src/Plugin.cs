@@ -10,13 +10,6 @@ using UnityEngine;
 
 namespace OwnedEquipmentHUD;
 
-public enum HudDisplayMode
-{
-    Text,
-    Icons,
-    Both
-}
-
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 [BepInProcess("REPO.exe")]
 public sealed class Plugin : BaseUnityPlugin
