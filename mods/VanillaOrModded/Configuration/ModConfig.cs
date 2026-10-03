@@ -8,6 +8,7 @@ internal sealed class ModConfig
     internal ConfigEntry<bool> VotingEnabled { get; }
     internal ConfigEntry<float> VotingDuration { get; }
     internal ConfigEntry<bool> EndEarlyWhenAllVoted { get; }
+    internal ConfigEntry<bool> VoteFirstMapOnNewSave { get; }
     internal ConfigEntry<TieBreakMode> TieBreak { get; }
     internal ConfigEntry<bool> PreventMapRepeats { get; }
     internal ConfigEntry<int> MapHistoryLength { get; }
@@ -35,6 +36,10 @@ internal sealed class ModConfig
         EndEarlyWhenAllVoted = config.Bind(
             "Gameplay (Host)", "EndEarlyWhenAllVoted", true,
             "Finish as soon as every eligible compatible participant has voted.");
+
+        VoteFirstMapOnNewSave = config.Bind(
+            "Gameplay (Host)", "VoteFirstMapOnNewSave", true,
+            "Hold the first map of a new save until the vote ends. Set to false to restore the old behavior if this causes problems. Only the host's value affects the lobby.");
 
         TieBreak = config.Bind(
             "Gameplay (Host)", "TieBreak", TieBreakMode.Random,

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Vote on the first map of a new save by holding the first `RunManager.ChangeLevel` call (`VoteFirstMapOnNewSave`). Needs in-game confirmation.
 - Added the host `TieBreak` option (`Random` or `FavorNotLast`).
 - Added the local `ShowCountdown` option.
 - Vote duration is now validated in `Core/VoteRules.cs`, including NaN input.
