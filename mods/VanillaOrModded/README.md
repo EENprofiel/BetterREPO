@@ -18,7 +18,7 @@ The vote appears in the truck/loading phase before each new playable map selecti
 - One compatible player equals one vote.
 - Votes may be changed until voting closes. Totals move immediately when a vote changes.
 - Only anonymous green vote blocks are synchronized. Player names, Steam names, Steam IDs, and individual vote choices are never displayed.
-- The vote ends after five seconds by default (`VotingDuration`, 2 to 60 seconds). Players who did not vote when time ends do not change the result. The vote ends or earlier when every eligible compatible participant has voted.
+- The vote ends after five seconds by default (`VotingDuration`, 2 to 60 seconds). Players who did not vote when time ends do not change the result. It also ends earlier when every eligible compatible participant has voted.
 - The host can force-finish using the small **HOST: FINISH [F]** button or the **F** key.
 - Keyboard shortcuts **1**, **2**, and **3** select Vanilla, Modded, and Random. Mouse selection is fully supported.
 - Tied top categories are resolved by the host, using only the tied choices. The `TieBreak` option sets the rule.
