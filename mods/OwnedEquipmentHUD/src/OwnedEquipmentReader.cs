@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace OwnedEquipmentHUD;
 
@@ -91,6 +92,44 @@ internal sealed class OwnedEquipmentReader
         return GameApi.GetStringMember(item, "name").Trim();
     }
 
+    // Returns the maximum number of purchases the game allows for this item,
+    // or 0 when the item has no limit (or the game does not expose one).
+    internal int GetPurchaseLimit(object item)
+    {
+        if (item == null)
+        {
+            return 0;
+        }
+
+        object? maxPurchase = GameApi.GetMemberValue(item, "maxPurchase");
+        if (maxPurchase is bool hasLimit && !hasLimit)
+        {
+            return 0;
+        }
+
+        object? amount = GameApi.GetMemberValue(item, "maxPurchaseAmount");
+        try
+        {
+            int limit = amount == null ? 0 : Convert.ToInt32(amount);
+            return limit > 0 ? limit : 0;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    internal Sprite? GetIcon(object item)
+    {
+        object? icon = GameApi.GetMemberValue(item, "icon");
+        if (icon is Sprite sprite && sprite != null && sprite.texture != null)
+        {
+            return sprite;
+        }
+
+        return null;
+    }
+
     internal bool IsReusableEquipmentItem(object item)
     {
         return item != null && IsReusableEquipment(GetCategory(item));
@@ -134,7 +173,9 @@ internal sealed class OwnedEquipmentReader
                 ? GameApi.GetStringMember(item, "name")
                 : key;
 
-            entries.Add(new OwnedEquipmentEntry(identity, displayName, category, count));
+            int limit = GetPurchaseLimit(item);
+            Sprite? icon = GetIcon(item);
+            entries.Add(new OwnedEquipmentEntry(identity, displayName, category, count, limit, icon));
 
             if (Plugin.VerboseEquipmentLogging.Value)
             {
@@ -143,6 +184,8 @@ internal sealed class OwnedEquipmentReader
                     $"[OwnedEquipmentHUD] {displayName}: " +
                     $"Item key = '{identity}', category = '{category}', " +
                     $"StatsManager.GetItemPurchased = {count}, " +
+                    $"purchase limit = {(limit > 0 ? limit.ToString() : "none")}, " +
+                    $"icon = {(icon != null ? icon.name : "none")}, " +
                     $"ItemManager.purchasedItems remaining spawn entries = {remainingSpawnEntries}, " +
                     $"displayed total = {count}.");
             }
@@ -331,18 +374,30 @@ internal sealed class OwnedEquipmentReader
 
 internal sealed class OwnedEquipmentEntry
 {
-    internal OwnedEquipmentEntry(string identity, string displayName, string category, int count)
+    internal OwnedEquipmentEntry(
+        string identity,
+        string displayName,
+        string category,
+        int count,
+        int limit,
+        Sprite? icon)
     {
         Identity = identity;
         DisplayName = displayName;
         Category = category;
         Count = count;
+        Limit = limit;
+        Icon = icon;
     }
 
     internal string Identity { get; }
     internal string DisplayName { get; }
     internal string Category { get; }
     internal int Count { get; }
+
+    // 0 means the game exposes no purchase limit for this item.
+    internal int Limit { get; }
+    internal Sprite? Icon { get; }
 }
 
 internal sealed class OwnedEquipmentSnapshot

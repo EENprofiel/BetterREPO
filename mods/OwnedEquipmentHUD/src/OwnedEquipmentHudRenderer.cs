@@ -31,32 +31,56 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
         OwnedEquipmentSnapshot snapshot,
         int maxVisibleRows,
         FocusedShopItem? focusedItem,
-        bool showList)
+        bool showList,
+        HudDisplayMode displayMode,
+        bool compact)
     {
         float scale = Mathf.Clamp(Screen.height / 1080f, 0.75f, 1.35f);
-        EnsureStyles(scale);
+        float density = compact ? 0.8f : 1f;
+        EnsureStyles(scale * density);
 
-        int rowLimit = Mathf.Clamp(maxVisibleRows, 1, 50);
+        bool hasContext = focusedItem != null;
+        bool iconsOnly = displayMode == HudDisplayMode.Icons;
+        bool wantsIcons = displayMode != HudDisplayMode.Text;
+
+        float margin = 8f * scale;
+        float padding = 14f * scale * density;
+        float titleHeight = showList ? 28f * scale * density : 0f;
+        float iconSize = 20f * scale * density;
+        float rowHeight = (wantsIcons ? 26f : 23f) * scale * density;
+        float footerHeight = 20f * scale * density;
+        float contextHeight = hasContext ? 38f * scale * density : 0f;
+        float countWidth = 64f * scale * density;
+
+        float baseWidth = compact ? 270f : 370f;
+        if (iconsOnly)
+        {
+            baseWidth = compact ? 190f : 250f;
+        }
+
+        // Never wider than the screen, so ultrawide and small screens both fit.
+        float width = Mathf.Min(baseWidth * scale, Screen.width - margin * 2f);
+
+        float rightMargin = 22f * scale;
+        float topMargin = 86f * scale;
+        float x = Mathf.Max(margin, Screen.width - width - rightMargin);
+        float y = Mathf.Clamp(topMargin, margin, Mathf.Max(margin, Screen.height * 0.5f));
+
+        // Limit the rows by config and by the space left below the panel's top edge.
         int entryCount = showList ? snapshot.Entries.Count : 0;
+        int rowLimit = Mathf.Clamp(maxVisibleRows, 1, 50);
+        float fixedHeight = padding * 2f + titleHeight + contextHeight;
+        float availableRows = (Screen.height - margin - y - fixedHeight - footerHeight) / rowHeight;
+        int screenRowLimit = Mathf.Max(1, Mathf.FloorToInt(availableRows));
+        rowLimit = Math.Min(rowLimit, screenRowLimit);
+
         int visibleRows = showList
             ? Math.Max(1, Math.Min(rowLimit, Math.Max(entryCount, 1)))
             : 0;
         bool scrollable = showList && entryCount > visibleRows;
-        bool hasContext = focusedItem != null;
-
-        float width = 370f * scale;
-        float padding = 14f * scale;
-        float titleHeight = showList ? 28f * scale : 0f;
-        float rowHeight = 23f * scale;
-        float footerHeight = scrollable ? 20f * scale : 0f;
-        float contextHeight = hasContext ? 38f * scale : 0f;
         float contentHeight = showList ? visibleRows * rowHeight : 0f;
-        float height = padding + titleHeight + contentHeight + footerHeight + contextHeight + padding;
+        float height = fixedHeight + contentHeight + (scrollable ? footerHeight : 0f);
 
-        float rightMargin = 22f * scale;
-        float topMargin = 86f * scale;
-        float x = Mathf.Max(8f * scale, Screen.width - width - rightMargin);
-        float y = Mathf.Max(8f * scale, topMargin);
         Rect panelRect = new Rect(x, y, width, height);
 
         GUI.Box(panelRect, GUIContent.none, _panelStyle!);
@@ -64,8 +88,8 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
 
         if (showList)
         {
-            Rect titleRect = new Rect(x + padding, y + 5f * scale, width - padding * 2f, titleHeight);
-            GUI.Label(titleRect, "OWNED EQUIPMENT", _titleStyle!);
+            Rect titleRect = new Rect(x + padding, y + 5f * scale * density, width - padding * 2f, titleHeight);
+            GUI.Label(titleRect, compact ? "OWNED" : "OWNED EQUIPMENT", _titleStyle!);
 
             Rect viewport = new Rect(
                 x + padding,
@@ -79,7 +103,7 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
             }
             else if (entryCount == 0)
             {
-                GUI.Label(viewport, "No reusable equipment owned", _mutedStyle!);
+                GUI.Label(viewport, compact ? "None owned" : "No reusable equipment owned", _mutedStyle!);
             }
             else
             {
@@ -89,12 +113,16 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
 
                 for (int index = 0; index < entryCount; index++)
                 {
-                    OwnedEquipmentEntry entry = snapshot.Entries[index];
-                    float rowY = index * rowHeight;
-                    Rect nameRect = new Rect(0f, rowY, contentWidth - 46f * scale, rowHeight);
-                    Rect countRect = new Rect(contentWidth - 44f * scale, rowY, 44f * scale, rowHeight);
-                    GUI.Label(nameRect, TrimName(entry.DisplayName, 31), _rowNameStyle!);
-                    GUI.Label(countRect, $"x{entry.Count}", _rowCountStyle!);
+                    DrawRow(
+                        snapshot.Entries[index],
+                        index * rowHeight,
+                        contentWidth,
+                        rowHeight,
+                        iconSize,
+                        countWidth,
+                        wantsIcons,
+                        displayMode == HudDisplayMode.Both,
+                        compact);
                 }
 
                 GUI.EndScrollView();
@@ -118,11 +146,60 @@ internal sealed class OwnedEquipmentHudRenderer : IDisposable
                 y + height - contextHeight - padding * 0.45f,
                 width - padding * 2f,
                 contextHeight);
+            string owned = focusedItem.Limit > 0
+                ? $"{focusedItem.OwnedCount}/{focusedItem.Limit}"
+                : focusedItem.OwnedCount.ToString();
+            string afterPurchase = focusedItem.Limit > 0 && focusedItem.OwnedCount >= focusedItem.Limit
+                ? "Limit reached"
+                : $"After purchase: {focusedItem.OwnedCount + 1}";
             string context =
-                $"{TrimName(focusedItem.DisplayName, 29)}  |  Owned: {focusedItem.OwnedCount}\n" +
-                $"After purchase: {focusedItem.OwnedCount + 1}";
+                $"{TrimName(focusedItem.DisplayName, compact ? 20 : 29)}  |  Owned: {owned}\n" +
+                afterPurchase;
             GUI.Label(contextRect, context, _contextStyle!);
         }
+    }
+
+    private void DrawRow(
+        OwnedEquipmentEntry entry,
+        float rowY,
+        float contentWidth,
+        float rowHeight,
+        float iconSize,
+        float countWidth,
+        bool wantsIcons,
+        bool showNameWithIcon,
+        bool compact)
+    {
+        float gap = 4f;
+        Rect countRect = new Rect(contentWidth - countWidth, rowY, countWidth, rowHeight);
+        float left = 0f;
+        bool hasIcon = wantsIcons && entry.Icon != null;
+
+        if (hasIcon)
+        {
+            Sprite sprite = entry.Icon!;
+            Texture texture = sprite.texture;
+            Rect source = sprite.textureRect;
+            Rect uv = new Rect(
+                source.x / texture.width,
+                source.y / texture.height,
+                source.width / texture.width,
+                source.height / texture.height);
+            Rect iconRect = new Rect(0f, rowY + (rowHeight - iconSize) * 0.5f, iconSize, iconSize);
+            GUI.DrawTextureWithTexCoords(iconRect, texture, uv);
+            left = iconSize + gap;
+        }
+
+        // Text is drawn unless the row has an icon and the mode is icons only.
+        // An item with no icon therefore always falls back to its name.
+        if (!hasIcon || showNameWithIcon)
+        {
+            Rect nameRect = new Rect(left, rowY, countRect.x - left - gap, rowHeight);
+            GUI.Label(nameRect, TrimName(entry.DisplayName, compact ? 22 : 31), _rowNameStyle!);
+        }
+
+        string count = entry.Limit > 0 ? $"x{entry.Count}/{entry.Limit}" : $"x{entry.Count}";
+        GUI.Label(countRect, count, _rowCountStyle!);
     }
 
     private void DrawBorder(Rect panelRect, float scale)

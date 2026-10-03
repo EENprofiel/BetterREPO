@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <RepositoryUrl>https://github.com/</RepositoryUrl>
 
     <!-- Override these properties on the command line for a local R.E.P.O. install. -->

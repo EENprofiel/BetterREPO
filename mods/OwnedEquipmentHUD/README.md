@@ -47,6 +47,8 @@ The generated config is `BepInEx/config/lucas.repo.owned-equipment-hud.cfg`:
 [Display]
 ShowEquipmentList = true
 ShowOwnedCountOnShopItems = true
+DisplayMode = Text
+CompactLayout = false
 MaxVisibleRows = 12
 HideZeroCountItems = true
 
@@ -63,9 +65,23 @@ After purchase: 3
 
 The context line is also based on `StatsManager.GetItemPurchased(Item)`. It is only a preview of one additional accepted purchase, not a promise that the team can afford the item or that the shop has not otherwise changed.
 
+## Purchase limit
+
+When the game exposes a purchase limit for an item (`Item.maxPurchase` and `Item.maxPurchaseAmount`), the list shows it after the owned count, for example `x2/3`. The shop context line shows `Owned: 2/3`, and `Limit reached` instead of the after-purchase count when the team is at the limit. Items with no limit show only the count. The owned count always comes from `StatsManager.GetItemPurchased(Item)`.
+
+## Icons and compact layout
+
+`DisplayMode` selects how rows are drawn:
+
+- `Text`: item names (default, same as 1.0.0).
+- `Icons`: the item's own icon from the game's `Item` data, plus the count.
+- `Both`: icon, name and count.
+
+An item with no icon always falls back to its name. `CompactLayout = true` uses a smaller panel with tighter rows. In every mode the panel is clamped to the screen: its width never exceeds the screen width, and the number of visible rows is reduced when the screen is too short, so the list scrolls instead of leaving the screen. The panel is anchored to the upper-right corner, so it stays in view on 1080p, 1440p and ultrawide screens.
+
 ## Debug logging
 
-With `VerboseEquipmentLogging = true`, the mod logs the item identity, game category, authoritative `GetItemPurchased` result, and the separate `ItemManager.purchasedItems` remaining-spawn count. The latter is diagnostic only and is never displayed as ownership.
+With `VerboseEquipmentLogging = true`, the mod logs the item identity, game category, authoritative `GetItemPurchased` result, the purchase limit, the icon name, and the separate `ItemManager.purchasedItems` remaining-spawn count. The latter is diagnostic only and is never displayed as ownership.
 
 ## Limitations
 
@@ -92,7 +108,7 @@ Bash:
 dotnet build -c Release -p:RepoGameDir="/path/to/REPO"
 ```
 
-The compiled `OwnedEquipmentHUD.dll` and `OwnedEquipmentHUD-1.0.0.zip` are written to `dist/`. The zip contains the DLL, manifest, README, changelog, and persistence research. Copy the DLL to `BepInEx/plugins/` or install the archive with your mod manager.
+The compiled `OwnedEquipmentHUD.dll` and `OwnedEquipmentHUD-1.1.0.zip` are written to `dist/`. The zip contains the DLL, manifest, README, changelog, and persistence research. Copy the DLL to `BepInEx/plugins/` or install the archive with your mod manager.
 
 ## Compatibility note
 
