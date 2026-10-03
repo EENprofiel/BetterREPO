@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../CloudRefs.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>OwnedEquipmentHUD</AssemblyName>
@@ -18,17 +19,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\**\*.cs" />
   </ItemGroup>
 
   <!-- BepInEx and Harmony are runtime dependencies and are never bundled. -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseGameStubs)' != 'true'">
     <Reference Include="BepInEx" HintPath="$(BepInExDir)\core\BepInEx.dll" Private="false" />
     <Reference Include="0Harmony" HintPath="$(BepInExDir)\core\0Harmony.dll" Private="false" />
   </ItemGroup>
 
   <!-- Unity references are runtime dependencies and are never bundled. -->
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseGameStubs)' != 'true'">
     <Reference Include="UnityEngine" HintPath="$(ManagedDir)\UnityEngine.dll" Private="false" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
     <Reference Include="UnityEngine.IMGUIModule" HintPath="$(ManagedDir)\UnityEngine.IMGUIModule.dll" Private="false" />

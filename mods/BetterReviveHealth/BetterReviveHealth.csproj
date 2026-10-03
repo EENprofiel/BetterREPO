@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../CloudRefs.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -29,7 +30,7 @@
     <GameManagedDir Condition="'$(GameManagedDir)' == '' and '$(BepInExDir)' != ''">$(BepInExDir)\..\REPO_Data\Managed</GameManagedDir>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseGameStubs)' != 'true'">
     <Reference Include="BepInEx">
       <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
       <Private>false</Private>
