@@ -1,0 +1,22 @@
+{
+  "VanillaOrModded": {
+    "namespace": "profiel",
+    "categories": ["mods", "levels"],
+    "ci_build": true
+  },
+  "TruckEnergyDisplay": {
+    "namespace": "profiel",
+    "categories": ["mods", "clientside"],
+    "ci_build": false
+  },
+  "OwnedEquipmentHUD": {
+    "namespace": "profiel",
+    "categories": ["mods", "clientside"],
+    "ci_build": false
+  },
+  "BetterReviveHealth": {
+    "namespace": "profiel",
+    "categories": ["mods"],
+    "ci_build": false
+  }
+}

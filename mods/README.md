@@ -43,11 +43,28 @@ The mods target BepInEx plugins (`netstandard2.1`, .NET 8 SDK) and compile again
 
 TruckEnergyDisplay also has an executable check project in `tests/` and a `package.py` that builds the Thunderstore ZIP.
 
+## Continuous integration
+
+`.github/workflows/mods.yml` runs on every pull request that touches `mods/`:
+
+| Check | Covers |
+| --- | --- |
+| Layout and versions | All four mods. Required files, 256x256 icon, manifest, changelog heading and code version agree (`scripts/check_mods.py`). |
+| TruckEnergyDisplay tests | The executable checks in `TruckEnergyDisplay/tests`. The check against the real game assembly only runs when you pass a game folder locally. |
+| VanillaOrModded build and tests | A Release build, using the NuGet game libraries and MenuLib and REPOLib downloaded from Thunderstore. Runs test projects in `VanillaOrModded/tests/` or `VanillaOrModded/*.Tests/` once they exist. |
+
+CI does not build TruckEnergyDisplay, OwnedEquipmentHUD or BetterReviveHealth. They compile against the game's own DLLs, which are not in the repository. A compile error in those mods is only found when you build locally. To change that, publicized or stub reference assemblies for these mods must be added to CI later.
+
+## Releasing a mod
+
+See "Releasing a mod" in [MAINTENANCE.md](../MAINTENANCE.md). Tags look like `VanillaOrModded-v1.0.0`.
+
 ## Adding a new mod
 
 1. Create `mods/<ModName>/` with a README, CHANGELOG, LICENSE, icon, manifest.json, csproj and source.
 2. Add a row to the table above and to the root `README.md`.
-3. Keep game assemblies and built DLLs out of Git.
+3. Add the mod to `scripts/mods.json`.
+4. Keep game assemblies and built DLLs out of Git.
 
 ## Conventions to keep
 

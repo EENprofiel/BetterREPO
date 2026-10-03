@@ -1,0 +1,54 @@
+name: Mods
+on:
+  push:
+    branches: [main]
+    paths: ["mods/**", "scripts/check_mods.py", "scripts/package_mod.py", ".github/workflows/mods.yml"]
+  pull_request:
+    paths: ["mods/**", "scripts/check_mods.py", "scripts/package_mod.py", ".github/workflows/mods.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  layout:
+    name: Layout and versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_mods.py
+  truck-energy-tests:
+    name: TruckEnergyDisplay tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet run --project mods/TruckEnergyDisplay/tests -c Release
+  vanilla-or-modded:
+    name: VanillaOrModded build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Fetch MenuLib and REPOLib reference DLLs
+        working-directory: mods/VanillaOrModded
+        run: |
+          mkdir -p lib
+          fetch() {
+            curl -fsSL -o "$RUNNER_TEMP/$2.zip" "https://thunderstore.io/package/download/$1/$2/$3/"
+            unzip -j -o "$RUNNER_TEMP/$2.zip" "*$2.dll" -d lib
+          }
+          fetch nickklmao MenuLib 2.5.4
+          fetch Zehs REPOLib 4.2.0
+      - run: dotnet build mods/VanillaOrModded/VanillaOrModded.csproj -c Release
+      - name: Run tests when the mod has a test project
+        run: |
+          shopt -s nullglob
+          projects=(mods/VanillaOrModded/tests/*.csproj mods/VanillaOrModded/*.Tests/*.csproj)
+          if [ ${#projects[@]} -eq 0 ]; then echo "No VanillaOrModded tests yet."; fi
+          for p in "${projects[@]}"; do dotnet test "$p" -c Release; done
