@@ -73,6 +73,13 @@ internal static class VoteUi
             return;
         }
 
+        bool show = Plugin.Settings.ShowCountdown.Value;
+        _timerLabel.labelTMP.enabled = show;
+        if (!show)
+        {
+            return;
+        }
+
         _timerLabel.labelTMP.text = $"{Mathf.Max(0f, seconds):0.0}s";
         _timerLabel.labelTMP.color = seconds <= 1.25f
             ? new Color(1f, 0.2f, 0.2f, 1f)

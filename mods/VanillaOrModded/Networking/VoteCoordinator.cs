@@ -27,6 +27,7 @@ internal static class VoteCoordinator
     private static float _nextDisconnectPoll;
     private static int _highestAcceptedSessionId;
     private static int _lastKnownMasterActor;
+    private static MapCategory? _lastWinner;
 
     internal static bool IsVoting => Session.State == VoteLifecycle.Voting;
 
@@ -37,6 +38,7 @@ internal static class VoteCoordinator
         WarnedIncompatibleActors.Clear();
         _highestAcceptedSessionId = 0;
         _lastKnownMasterActor = 0;
+        _lastWinner = null;
         SelectionController.ClearPendingSelection();
         VoteNetwork.Initialize(HandleNetworkMessage);
     }
@@ -80,6 +82,7 @@ internal static class VoteCoordinator
         if (VoteNetwork.IsMultiplayer && !Photon.Pun.PhotonNetwork.InRoom)
         {
             SelectionController.ResetForLobby();
+            _lastWinner = null;
             _highestAcceptedSessionId = 0;
             _lastKnownMasterActor = 0;
             if (Session.State != VoteLifecycle.Idle)
@@ -135,7 +138,7 @@ internal static class VoteCoordinator
                         PruneDisconnectedEligibleActors();
                     }
 
-                    if (Session.State == VoteLifecycle.Voting && now >= _votingEndsAt)
+                    if (Session.State == VoteLifecycle.Voting && VoteRules.IsExpired(now, _votingEndsAt))
                     {
                         ResolveHostVote();
                     }
@@ -204,7 +207,7 @@ internal static class VoteCoordinator
             eligible = eligible.Append(VoteNetwork.LocalActorNumber).OrderBy(actor => actor).ToArray();
         }
 
-        float duration = Mathf.Clamp(Plugin.Settings.VotingDuration.Value, 2f, 60f);
+        float duration = VoteRules.ClampDuration(Plugin.Settings.VotingDuration.Value);
         Session.BeginVoting(Session.SessionId, eligible);
         _hostActorAtStart = VoteNetwork.LocalActorNumber;
         _votingEndsAt = Time.realtimeSinceStartup + duration;
@@ -272,7 +275,14 @@ internal static class VoteCoordinator
             return;
         }
 
-        MapCategory? winner = Session.Resolve(tiedCount => UnityEngine.Random.Range(0, tiedCount));
+        MapCategory? winner = Session.Resolve(
+            tiedCount => UnityEngine.Random.Range(0, tiedCount),
+            VoteRules.NormalizeTieBreak(Plugin.Settings.TieBreak.Value),
+            _lastWinner);
+        if (winner.HasValue)
+        {
+            _lastWinner = winner;
+        }
         Level? selected = winner.HasValue ? SelectionController.ChooseAndQueue(winner.Value) : null;
         if (!winner.HasValue)
         {

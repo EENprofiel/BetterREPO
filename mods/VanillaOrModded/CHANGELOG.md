@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added the host `TieBreak` option (`Random` or `FavorNotLast`).
+- Added the local `ShowCountdown` option.
+- Vote duration is now validated in `Core/VoteRules.cs`, including NaN input.
+- Added `tests/` with checks for majority, tie, timeout, no votes, late join, host change, and history filtering.
+
 ## 1.0.0
 
 - Fresh public release as **VanillaOrModded** by **profiel**.
