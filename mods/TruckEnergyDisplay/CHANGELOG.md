@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Adds `Anchor` (four screen corners) and `Opacity` settings. Margins and scale now apply from the chosen corner, are clamped on screen, and update live.
+
 ## 1.2.0
 
 - Replaces heuristic field-name and visual-segment fallbacks with runtime IL discovery.

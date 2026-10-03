@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 namespace TruckEnergyDisplay;
 
+internal enum HudAnchor { TopRight, TopLeft, BottomRight, BottomLeft }
+
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public sealed class Plugin : BaseUnityPlugin
 {
@@ -17,7 +19,8 @@ public sealed class Plugin : BaseUnityPlugin
     internal static ManualLogSource Log = null!;
     internal static ConfigEntry<bool> ShowTruckEnergy = null!, ShowCrystalRequirement = null!, ShowCheckoutPrediction = null!,
         ShowEnergyBar = null!, ShowPercentage = null!, ShowRawEnergy = null!;
-    internal static ConfigEntry<float> OffsetX = null!, OffsetY = null!, UiScale = null!, RefreshInterval = null!;
+    internal static ConfigEntry<HudAnchor> Anchor = null!;
+    internal static ConfigEntry<float> Opacity = null!, OffsetX = null!, OffsetY = null!, UiScale = null!, RefreshInterval = null!;
     private GameEnergyReader _reader = null!;
     private EnergyNetwork _network = null!;
     private EnergyHud _hud = null!;
@@ -33,8 +36,10 @@ public sealed class Plugin : BaseUnityPlugin
         ShowEnergyBar = Config.Bind("Display", "ShowEnergyBar", true, "Show a small yellow energy bar.");
         ShowPercentage = Config.Bind("Display", "ShowPercentage", true, "Show percentage of the verified station capacity.");
         ShowRawEnergy = Config.Bind("Display", "ShowRawEnergy", false, "Also show current / maximum energy units.");
-        OffsetX = Config.Bind("Display", "RightMargin", 40f, new ConfigDescription("Margin from the right edge at 1080p.", new AcceptableValueRange<float>(0, 1800)));
-        OffsetY = Config.Bind("Display", "TopMargin", 220f, new ConfigDescription("Margin from the top edge at 1080p.", new AcceptableValueRange<float>(0, 900)));
+        Anchor = Config.Bind("Display", "Anchor", HudAnchor.TopRight, "Screen corner the HUD is attached to. The margins below are measured from this corner.");
+        Opacity = Config.Bind("Display", "Opacity", 1f, new ConfigDescription("HUD opacity. 1 is fully visible.", new AcceptableValueRange<float>(0.1f, 1f)));
+        OffsetX = Config.Bind("Display", "RightMargin", 40f, new ConfigDescription("Horizontal margin from the anchor's left or right edge at 1080p.", new AcceptableValueRange<float>(0, 1800)));
+        OffsetY = Config.Bind("Display", "TopMargin", 220f, new ConfigDescription("Vertical margin from the anchor's top or bottom edge at 1080p.", new AcceptableValueRange<float>(0, 900)));
         UiScale = Config.Bind("Display", "Scale", 1f, new ConfigDescription("Additional HUD scale.", new AcceptableValueRange<float>(0.6f, 1.8f)));
         RefreshInterval = Config.Bind("Performance", "RefreshInterval", 0.25f, new ConfigDescription("Seconds between snapshots.", new AcceptableValueRange<float>(0.1f, 1f)));
         _reader = new GameEnergyReader(); _network = new EnergyNetwork(); _hud = new EnergyHud();
