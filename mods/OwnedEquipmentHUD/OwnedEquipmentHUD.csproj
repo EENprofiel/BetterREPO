@@ -19,6 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
   </ItemGroup>
 
   <!-- BepInEx and Harmony are runtime dependencies and are never bundled. -->

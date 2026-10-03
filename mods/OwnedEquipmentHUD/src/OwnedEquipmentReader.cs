@@ -22,6 +22,7 @@ internal sealed class OwnedEquipmentReader
         "mine"
     };
 
+    private readonly Dictionary<string, Sprite> _iconCache = new(StringComparer.Ordinal);
     private bool _dirty = true;
     private bool _missingApiLogged;
     private Type? _statsManagerType;
@@ -115,12 +116,77 @@ internal sealed class OwnedEquipmentReader
         }
     }
 
+    // R.E.P.O.'s Item has no icon field. The icon is ItemAttributes.icon on the
+    // item's prefab, with ItemAttributes.hasIcon telling whether it is set.
+    // Results are cached per item, including "no icon", so the prefab is not
+    // searched on every refresh.
     internal Sprite? GetIcon(object item)
     {
-        object? icon = GameApi.GetMemberValue(item, "icon");
-        if (icon is Sprite sprite && sprite != null && sprite.texture != null)
+        string name = GameApi.GetStringMember(item, "itemName");
+        if (name.Length > 0 && _iconCache.TryGetValue(name, out Sprite? cached))
         {
-            return sprite;
+            return cached;
+        }
+
+        Sprite? sprite = ReadIcon(item) ?? FindPrefabIcon(item);
+        if (name.Length > 0 && sprite != null)
+        {
+            _iconCache[name] = sprite;
+        }
+
+        return sprite;
+    }
+
+    // Called when the player looks at a shop item: its ItemAttributes is live,
+    // so the icon is read directly even if the prefab lookup failed.
+    internal void LearnIcon(object item, object? attributes)
+    {
+        string name = GameApi.GetStringMember(item, "itemName");
+        if (name.Length == 0 || _iconCache.ContainsKey(name))
+        {
+            return;
+        }
+
+        Sprite? sprite = ReadIcon(attributes);
+        if (sprite != null)
+        {
+            _iconCache[name] = sprite;
+            MarkDirty();
+        }
+    }
+
+    private static Sprite? ReadIcon(object? holder)
+    {
+        if (holder == null || GameApi.IsUnityNull(holder))
+        {
+            return null;
+        }
+
+        if (holder.GetType().GetField("hasIcon", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) != null &&
+            !GameApi.GetBoolMember(holder, "hasIcon"))
+        {
+            return null;
+        }
+
+        object? icon = GameApi.GetMemberValue(holder, "icon");
+        return icon is Sprite sprite && sprite != null && sprite.texture != null ? sprite : null;
+    }
+
+    private static Sprite? FindPrefabIcon(object item)
+    {
+        try
+        {
+            object? prefabRef = GameApi.GetMemberValue(item, "prefab");
+            object? prefab = GameApi.GetMemberValue(prefabRef, "Prefab") ?? prefabRef;
+            Type? attributesType = GameApi.FindType("ItemAttributes");
+            if (prefab is GameObject gameObject && gameObject != null && attributesType != null)
+            {
+                return ReadIcon(gameObject.GetComponent(attributesType));
+            }
+        }
+        catch (Exception exception)
+        {
+            Plugin.Log.LogDebug($"Could not read the prefab icon: {exception.Message}");
         }
 
         return null;

@@ -180,6 +180,8 @@ public sealed class Plugin : BaseUnityPlugin
             return null;
         }
 
+        Reader.LearnIcon(item, attributes);
+
         if (!Reader.TryGetOwnedCount(item, out int ownedCount))
         {
             return null;

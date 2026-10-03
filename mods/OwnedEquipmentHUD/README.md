@@ -67,14 +67,14 @@ The context line is also based on `StatsManager.GetItemPurchased(Item)`. It is o
 
 ## Purchase limit
 
-When the game exposes a purchase limit for an item (`Item.maxPurchase` and `Item.maxPurchaseAmount`), the list shows it after the owned count, for example `x2/3`. The shop context line shows `Owned: 2/3`, and `Limit reached` instead of the after-purchase count when the team is at the limit. Items with no limit show only the count. The owned count always comes from `StatsManager.GetItemPurchased(Item)`.
+When the game exposes a purchase limit for an item (`Item.maxPurchase` and `Item.maxPurchaseAmount`, both checked against the game's assembly), the list shows it after the owned count, for example `x2/3`. The shop context line shows `Owned: 2/3`, and `Limit reached` instead of the after-purchase count when the team is at the limit. Items with no limit show only the count. The owned count always comes from `StatsManager.GetItemPurchased(Item)`.
 
 ## Icons and compact layout
 
 `DisplayMode` selects how rows are drawn:
 
 - `Text`: item names (default, same as 1.0.0).
-- `Icons`: the item's own icon from the game's `Item` data, plus the count.
+- `Icons`: the item's icon plus the count. The game's `Item` has no icon field. The icon is `ItemAttributes.icon` on the item's prefab (when `hasIcon` is set). It is also learned when you look at the item in the shop.
 - `Both`: icon, name and count.
 
 An item with no icon always falls back to its name. `CompactLayout = true` uses a smaller panel with tighter rows. In every mode the panel is clamped to the screen: its width never exceeds the screen width, and the number of visible rows is reduced when the screen is too short, so the list scrolls instead of leaving the screen. The panel is anchored to the upper-right corner, so it stays in view on 1080p, 1440p and ultrawide screens.
@@ -113,3 +113,7 @@ The compiled `OwnedEquipmentHUD.dll` and `OwnedEquipmentHUD-1.1.0.zip` are writt
 ## Compatibility note
 
 The game-facing types are resolved reflectively instead of being compiled into the plugin. This keeps the plugin from shipping game code and allows it to tolerate harmless field visibility or assembly changes. The mod still intentionally fails closed when the authoritative ownership accessor is not available.
+
+## Tests
+
+`tests/` holds a console test project for the logic that does not need Unity or the game: purchase limit parsing and text, icon or text fallback, and panel layout on 720p, 1080p, 1440p and ultrawide screens. Run it with `dotnet run --project tests`.
