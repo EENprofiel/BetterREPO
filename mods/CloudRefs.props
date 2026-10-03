@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Shared references for mods that compile against the game.
+    Default: BepInEx, Unity and R.E.P.O. stub assemblies from NuGet, so the mod
+    builds anywhere (cloud sessions, CI). The stubs have no method bodies, so
+    this proves the code compiles but cannot run it.
+    Local install override: pass -p:RepoGameDir=<game dir> (or set REPO_GAME_DIR),
+    or -p:ManagedDir and -p:BepInExCoreDir, to build against the real game.
+  -->
+  <PropertyGroup>
+    <UseGameStubs Condition="'$(UseGameStubs)' == '' and '$(RepoGameDir)$(REPO_GAME_DIR)$(ManagedDir)$(BepInExCoreDir)$(BepInExDir)' == ''">true</UseGameStubs>
+    <UseGameStubs Condition="'$(UseGameStubs)' == ''">false</UseGameStubs>
+    <RestoreAdditionalProjectSources Condition="'$(UseGameStubs)' == 'true'">https://api.nuget.org/v3/index.json;https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseGameStubs)' == 'true'">
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" ExcludeAssets="runtime" />
+    <PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="R.E.P.O.GameLibs.Steam" Version="0.4.4-ngd.0" PrivateAssets="all" Publicize="true" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
