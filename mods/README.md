@@ -35,11 +35,11 @@ Per-mod `.gitignore` files and the root `.gitignore` keep `bin/`, `obj/`, `dist/
 
 ## Building
 
-The mods target BepInEx plugins (`netstandard2.1`, .NET 8 SDK) and compile against game and dependency assemblies that are not redistributed here. For each mod:
+The mods target BepInEx plugins (`netstandard2.1`, .NET 8 SDK). Install the .NET 8 SDK and run `dotnet build -c Release` inside the mod folder.
 
-1. Install the .NET 8 SDK.
-2. Place the reference assemblies the mod's README asks for in its `lib/` folder (or set `RepoGameDir` for the mods that read it).
-3. Run `dotnet build -c Release` inside the mod folder.
+- By default TruckEnergyDisplay, OwnedEquipmentHUD and BetterReviveHealth compile against BepInEx, Unity and R.E.P.O. stub packages from NuGet (`mods/CloudRefs.props`). This works in the cloud and in CI. The stubs have no method bodies, so a successful build proves the code compiles. It does not prove the mod works in the game.
+- To build against a real install, pass `-p:RepoGameDir=<game dir>` (or set `REPO_GAME_DIR`).
+- VanillaOrModded also needs `MenuLib.dll` and `REPOLib.dll` in its `lib/` folder (see `lib/README.md`).
 
 TruckEnergyDisplay also has an executable check project in `tests/` and a `package.py` that builds the Thunderstore ZIP.
 
