@@ -54,6 +54,8 @@ ShowCheckoutPrediction = true
 ShowEnergyBar = true
 ShowPercentage = true
 ShowRawEnergy = false
+Anchor = TopRight
+Opacity = 1
 RightMargin = 40
 TopMargin = 220
 Scale = 1
@@ -62,7 +64,7 @@ Scale = 1
 RefreshInterval = 0.25
 ```
 
-The TextMeshPro panel is anchored toward the upper right, below the top HUD area. It borrows an existing game UI font, has no input handling, and scales against screen height. Change the margins if it overlaps another mod's HUD. Ultrawide positioning uses the right screen edge, with bounds clamping.
+The TextMeshPro panel is anchored to a screen corner (`Anchor`: TopRight, TopLeft, BottomRight or BottomLeft, default TopRight, below the top HUD area). `RightMargin` and `TopMargin` are measured from the horizontal and vertical edges of that corner, `Scale` resizes the panel, and `Opacity` (0.1 to 1) fades it. The panel is clamped to stay fully on screen. Changes apply at the next refresh (about 0.25 seconds) while the shop is open, with no restart. It borrows an existing game UI font, has no input handling, and scales against screen height. Change the margins if it overlaps another mod's HUD. Ultrawide positioning uses the right screen edge, with bounds clamping.
 
 The HUD is hidden outside the Service Station and before the main gameplay state is ready. Values refresh four times per second by default; text is rebuilt only when its displayed content changes. Crystal and gameplay objects are never searched for across the scene. The only scene search is a font lookup when creating the HUD.
 

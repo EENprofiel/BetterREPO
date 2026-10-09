@@ -11,6 +11,7 @@ internal sealed class EnergyHud : IDisposable
 {
     private GameObject? _root;
     private RectTransform? _panel;
+    private CanvasGroup? _group;
     private TextMeshProUGUI? _text;
     private GameObject? _bar;
     private RectTransform? _fill;
@@ -28,8 +29,16 @@ internal sealed class EnergyHud : IDisposable
         float scale = Plugin.UiScale.Value;
         float width = Screen.width * 1080f / Math.Max(1, Screen.height);
         _panel!.localScale = new Vector3(scale, scale, 1);
-        _panel.anchoredPosition = new Vector2(-Mathf.Clamp(Plugin.OffsetX.Value, 0, Math.Max(0, width - 320 * scale)),
-            -Mathf.Clamp(Plugin.OffsetY.Value, 0, Math.Max(0, 1080 - 246 * scale)));
+        _group!.alpha = Mathf.Clamp(Plugin.Opacity.Value, 0.1f, 1f);
+        var anchor = Plugin.Anchor.Value;
+        bool right = anchor == HudAnchor.TopRight || anchor == HudAnchor.BottomRight;
+        bool top = anchor == HudAnchor.TopRight || anchor == HudAnchor.TopLeft;
+        var corner = new Vector2(right ? 1 : 0, top ? 1 : 0);
+        _panel.anchorMin = _panel.anchorMax = _panel.pivot = corner;
+        // Clamp so the whole scaled panel stays on screen at any aspect ratio.
+        float x = Mathf.Clamp(Plugin.OffsetX.Value, 0, Math.Max(0, width - 320 * scale));
+        float y = Mathf.Clamp(Plugin.OffsetY.Value, 0, Math.Max(0, 1080 - 246 * scale));
+        _panel.anchoredPosition = new Vector2(right ? -x : x, top ? -y : y);
         var text = new StringBuilder("<size=18><b>TRUCK ENERGY</b></size>\n");
         if (!s.HasEnergy) {
             text.Append("<size=22>Unavailable</size>\n<size=15>");
@@ -81,8 +90,8 @@ internal sealed class EnergyHud : IDisposable
         var panel = new GameObject("Panel", typeof(RectTransform), typeof(Image));
         panel.transform.SetParent(_root.transform, false);
         _panel = panel.GetComponent<RectTransform>();
-        _panel.anchorMin = _panel.anchorMax = _panel.pivot = new Vector2(1, 1);
         _panel.sizeDelta = new Vector2(320, 246);
+        _group = panel.AddComponent<CanvasGroup>(); _group.blocksRaycasts = false; _group.interactable = false;
         var background = panel.GetComponent<Image>(); background.color = new Color(0.025f, 0.025f, 0.03f, 0.66f); background.raycastTarget = false;
         var label = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         label.transform.SetParent(panel.transform, false);
