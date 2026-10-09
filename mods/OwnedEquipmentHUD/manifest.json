@@ -1,7 +1,7 @@
 {
   "name": "OwnedEquipmentHUD",
   "version_number": "1.0.0",
-  "website_url": "https://github.com/",
+  "website_url": "https://github.com/EENprofiel/BetterREPO/tree/main/mods/OwnedEquipmentHUD",
   "description": "Shows authoritative run-owned reusable equipment in the R.E.P.O. Service Station.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305"

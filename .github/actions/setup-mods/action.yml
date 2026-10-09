@@ -1,0 +1,19 @@
+name: Set up mod builds
+description: Install the .NET 8 SDK and fetch the MenuLib and REPOLib reference DLLs that VanillaOrModded needs.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Fetch MenuLib and REPOLib reference DLLs
+      shell: bash
+      working-directory: mods/VanillaOrModded
+      run: |
+        mkdir -p lib
+        fetch() {
+          curl -fsSL -o "$RUNNER_TEMP/$2.zip" "https://thunderstore.io/package/download/$1/$2/$3/"
+          unzip -j -o "$RUNNER_TEMP/$2.zip" "*$2.dll" -d lib
+        }
+        fetch nickklmao MenuLib 2.5.4
+        fetch Zehs REPOLib 4.2.0

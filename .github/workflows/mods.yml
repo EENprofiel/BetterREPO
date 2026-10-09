@@ -1,0 +1,37 @@
+name: Mods
+on:
+  push:
+    branches: [main]
+    paths: ["mods/**", "scripts/check_mods.py", "scripts/package_mod.py", ".github/**"]
+  pull_request:
+    paths: ["mods/**", "scripts/check_mods.py", "scripts/package_mod.py", ".github/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  layout:
+    name: Layout and versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_mods.py
+  compile:
+    name: Build and test all mods
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-mods
+      - name: Build every mod against the NuGet game stubs
+        run: |
+          for p in VanillaOrModded TruckEnergyDisplay OwnedEquipmentHUD BetterReviveHealth; do
+            dotnet build "mods/$p/$p.csproj" -c Release
+          done
+      - name: Run test projects
+        run: |
+          shopt -s nullglob
+          for p in mods/*/tests/*.csproj mods/*/*.Tests/*.csproj; do
+            dotnet run --project "$p" -c Release || exit 1
+          done
