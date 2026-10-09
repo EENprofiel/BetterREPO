@@ -16,7 +16,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lucas.repo.owned-equipment-hud";
     public const string PluginName = "Owned Equipment HUD";
-    public const string PluginVersion = "1.0.0";
+    public const string PluginVersion = "1.1.0";
 
     internal static Plugin? Instance { get; private set; }
     internal static ManualLogSource Log { get; private set; } = null!;
@@ -24,6 +24,8 @@ public sealed class Plugin : BaseUnityPlugin
     internal static ConfigEntry<bool> ShowEquipmentList { get; private set; } = null!;
     internal static ConfigEntry<bool> ShowOwnedCountOnShopItems { get; private set; } = null!;
     internal static ConfigEntry<int> MaxVisibleRows { get; private set; } = null!;
+    internal static ConfigEntry<HudDisplayMode> DisplayMode { get; private set; } = null!;
+    internal static ConfigEntry<bool> CompactLayout { get; private set; } = null!;
     internal static ConfigEntry<bool> HideZeroCountItems { get; private set; } = null!;
     internal static ConfigEntry<bool> VerboseEquipmentLogging { get; private set; } = null!;
 
@@ -61,6 +63,18 @@ public sealed class Plugin : BaseUnityPlugin
             new ConfigDescription(
                 "Maximum number of equipment rows visible before the list becomes scrollable.",
                 new AcceptableValueRange<int>(1, 50)));
+
+        DisplayMode = Config.Bind(
+            "Display",
+            "DisplayMode",
+            HudDisplayMode.Text,
+            "How list rows are drawn: Text (names), Icons (item icons), or Both. Items without an icon always fall back to text.");
+
+        CompactLayout = Config.Bind(
+            "Display",
+            "CompactLayout",
+            false,
+            "Use a smaller panel with tighter rows. Useful on small screens.");
 
         HideZeroCountItems = Config.Bind(
             "Display",
@@ -134,7 +148,9 @@ public sealed class Plugin : BaseUnityPlugin
             _reader.Snapshot,
             MaxVisibleRows.Value,
             focusedItem,
-            showList);
+            showList,
+            DisplayMode.Value,
+            CompactLayout.Value);
     }
 
     private FocusedShopItem? FindFocusedShopItem()
@@ -164,6 +180,8 @@ public sealed class Plugin : BaseUnityPlugin
             return null;
         }
 
+        Reader.LearnIcon(item, attributes);
+
         if (!Reader.TryGetOwnedCount(item, out int ownedCount))
         {
             return null;
@@ -175,7 +193,7 @@ public sealed class Plugin : BaseUnityPlugin
             return null;
         }
 
-        return new FocusedShopItem(displayName, ownedCount);
+        return new FocusedShopItem(displayName, ownedCount, Reader.GetPurchaseLimit(item));
     }
 
     private void PatchRefreshHooks()
@@ -263,12 +281,14 @@ public sealed class Plugin : BaseUnityPlugin
 
 internal sealed class FocusedShopItem
 {
-    internal FocusedShopItem(string displayName, int ownedCount)
+    internal FocusedShopItem(string displayName, int ownedCount, int limit)
     {
         DisplayName = displayName;
         OwnedCount = ownedCount;
+        Limit = limit;
     }
 
     internal string DisplayName { get; }
     internal int OwnedCount { get; }
+    internal int Limit { get; }
 }
