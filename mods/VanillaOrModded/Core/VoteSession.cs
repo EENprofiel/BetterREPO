@@ -61,7 +61,7 @@ internal sealed class VoteSession
         return _votes.Values.Count(value => value == option);
     }
 
-    internal MapCategory? Resolve(Func<int, int> chooseIndex)
+    internal MapCategory? Resolve(Func<int, int> chooseIndex, TieBreakMode tieBreak = TieBreakMode.Random, MapCategory? lastWinner = null)
     {
         if (State != VoteLifecycle.Voting)
         {
@@ -82,6 +82,16 @@ internal sealed class VoteSession
             .Cast<MapCategory>()
             .Where(option => Count(option) == highest)
             .ToList();
+
+        if (tieBreak == TieBreakMode.FavorNotLast && lastWinner.HasValue && tiedTop.Count > 1)
+        {
+            // Drop the previous winner from a tie, but never empty the list.
+            List<MapCategory> fresh = tiedTop.Where(option => option != lastWinner.Value).ToList();
+            if (fresh.Count > 0)
+            {
+                tiedTop = fresh;
+            }
+        }
 
         int index = chooseIndex(tiedTop.Count);
         if (index < 0 || index >= tiedTop.Count)

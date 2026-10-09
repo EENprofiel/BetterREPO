@@ -10,7 +10,7 @@ Players vote for a map **type**, never a specific map. The actual level stays a 
 - **MODDED** chooses randomly from the currently installed and registered custom playable maps.
 - **RANDOM** combines every eligible vanilla and modded map into one pool, then chooses one map directly. It does not perform a 50/50 category coin flip. If five vanilla and fifteen modded maps are installed, all twenty maps participate in the same draw.
 
-The vote appears in the truck/loading phase before each new playable map selection. The first automatic map on a brand-new save is the known exception described below.
+The vote appears in the truck/loading phase before each new playable map selection. The first map of a new save is handled as described in "First map of a new save".
 
 ## Multiplayer voting
 
@@ -18,10 +18,10 @@ The vote appears in the truck/loading phase before each new playable map selecti
 - One compatible player equals one vote.
 - Votes may be changed until voting closes. Totals move immediately when a vote changes.
 - Only anonymous green vote blocks are synchronized. Player names, Steam names, Steam IDs, and individual vote choices are never displayed.
-- The vote ends after five seconds by default, or earlier when every eligible compatible participant has voted.
+- The vote ends after five seconds by default (`VotingDuration`, 2 to 60 seconds). Players who did not vote when time ends do not change the result. It also ends earlier when every eligible compatible participant has voted.
 - The host can force-finish using the small **HOST: FINISH [F]** button or the **F** key.
 - Keyboard shortcuts **1**, **2**, and **3** select Vanilla, Modded, and Random. Mouse selection is fully supported.
-- Tied top categories are resolved randomly by the host, using only the tied choices.
+- Tied top categories are resolved by the host, using only the tied choices. The `TieBreak` option sets the rule.
 - With zero votes, no category or map override is applied. Normal game selection remains untouched.
 
 The host is authoritative. Clients submit only their own category choice; clients never select or apply a map.
@@ -65,6 +65,8 @@ Host-authoritative gameplay options:
 | `VotingEnabled` | `true` | Enables voting for the lobby. |
 | `VotingDuration` | `5` | Vote length in seconds, clamped to 2 through 60. |
 | `EndEarlyWhenAllVoted` | `true` | Ends when every snapshotted compatible participant voted. |
+| `VoteFirstMapOnNewSave` | `true` | Holds the first map of a new save until the vote ends. |
+| `TieBreak` | `Random` | `Random` picks any tied category. `FavorNotLast` skips the category that won the previous vote when another tied option exists. A clear winner is never changed. |
 | `PreventMapRepeats` | `true` | Enables map-history filtering. |
 | `MapHistoryLength` | `1` | Number of recent maps to exclude, clamped to 0 through 20. |
 | `ShowChosenMapName` | `false` | Reveals the selected map in the result notification when enabled. |
@@ -77,6 +79,7 @@ Client-local visual options:
 
 | Option | Default | Meaning |
 | --- | ---: | --- |
+| `ShowCountdown` | `true` | Shows the remaining vote time in the vote window. |
 | `UIScale` | `1.0` | Personal interface scale. |
 | `UIOffsetX` | `0` | Personal horizontal offset. |
 | `UIOffsetY` | `0` | Personal vertical offset. |
@@ -102,9 +105,22 @@ dotnet build -c Release
 
 The project restores its publicized R.E.P.O. 0.4.4 and Unity 2022.3.62 compile-time references from NuGet. MenuLib and REPOLib remain external runtime dependencies and are not bundled into the release DLL.
 
-## Known limitation
+## First map of a new save
 
-R.E.P.O. immediately commits the first map after a brand-new save before this mod reaches its normal truck vote point. That first-map/new-save behavior is intentionally out of scope for 1.0.0. Voting begins normally for later playable-map selections.
+R.E.P.O. commits the first map when the host leaves the lobby menu, before the truck HUD exists. VanillaOrModded holds that one `RunManager.ChangeLevel` call, runs the vote, then replays the call so the winning map is applied. A safety timeout always releases the call, so a failed vote cannot block the game.
+
+This applies only when the level counter is zero and the current scene is the lobby menu. Saves with completed levels behave as before. Set `VoteFirstMapOnNewSave` to `false` to turn it off.
+
+**Status:** this hook point was chosen from the game's method signatures and has not been confirmed in game. See `VERIFICATION.md`.
+
+## Tests
+
+The pure vote logic in `Core/` has an executable test project. It needs only the .NET 8 SDK:
+
+```powershell
+cd tests
+dotnet run
+```
 
 ## Dependencies
 

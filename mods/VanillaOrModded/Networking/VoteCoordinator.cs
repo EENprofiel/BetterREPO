@@ -27,8 +27,12 @@ internal static class VoteCoordinator
     private static float _nextDisconnectPoll;
     private static int _highestAcceptedSessionId;
     private static int _lastKnownMasterActor;
+    private static MapCategory? _lastWinner;
+    private static Action? _firstMapGate;
+    private static float _firstMapGateDeadline;
 
     internal static bool IsVoting => Session.State == VoteLifecycle.Voting;
+    internal static bool IsFirstMapGatePending => _firstMapGate != null;
 
     internal static void Initialize()
     {
@@ -37,12 +41,14 @@ internal static class VoteCoordinator
         WarnedIncompatibleActors.Clear();
         _highestAcceptedSessionId = 0;
         _lastKnownMasterActor = 0;
+        _lastWinner = null;
         SelectionController.ClearPendingSelection();
         VoteNetwork.Initialize(HandleNetworkMessage);
     }
 
     internal static void Shutdown()
     {
+        _firstMapGate = null;
         VoteNetwork.Shutdown();
         CancelLocalSession("Plugin shutdown");
         CompatibleActors.Clear();
@@ -73,15 +79,56 @@ internal static class VoteCoordinator
         BeginPreparation();
     }
 
+    internal static bool BeginFirstMapGate(Action resume)
+    {
+        if (_firstMapGate != null || !VoteNetwork.IsHost || Session.State != VoteLifecycle.Idle)
+        {
+            return false;
+        }
+
+        _firstMapGate = resume;
+        _firstMapGateDeadline = Time.realtimeSinceStartup + CapabilityWindowSeconds +
+                                VoteRules.ClampDuration(Plugin.Settings.VotingDuration.Value) + ResultStateSeconds;
+        BeginPreparation();
+        return true;
+    }
+
+    private static void ReleaseFirstMapGate(string reason)
+    {
+        Action? resume = _firstMapGate;
+        _firstMapGate = null;
+        if (resume == null)
+        {
+            return;
+        }
+
+        Plugin.Logger.LogInfo($"Releasing the first map of a new save ({reason}).");
+        try
+        {
+            resume();
+        }
+        catch (Exception exception)
+        {
+            Plugin.Logger.LogError($"Could not resume the held level change: {exception}");
+        }
+    }
+
     internal static void Tick()
     {
         float now = Time.realtimeSinceStartup;
 
+        if (_firstMapGate != null && now >= _firstMapGateDeadline)
+        {
+            ReleaseFirstMapGate("vote timed out");
+        }
+
         if (VoteNetwork.IsMultiplayer && !Photon.Pun.PhotonNetwork.InRoom)
         {
             SelectionController.ResetForLobby();
+            _lastWinner = null;
             _highestAcceptedSessionId = 0;
             _lastKnownMasterActor = 0;
+            _firstMapGate = null;
             if (Session.State != VoteLifecycle.Idle)
             {
                 CancelLocalSession("Left the multiplayer room");
@@ -135,7 +182,7 @@ internal static class VoteCoordinator
                         PruneDisconnectedEligibleActors();
                     }
 
-                    if (Session.State == VoteLifecycle.Voting && now >= _votingEndsAt)
+                    if (Session.State == VoteLifecycle.Voting && VoteRules.IsExpired(now, _votingEndsAt))
                     {
                         ResolveHostVote();
                     }
@@ -204,7 +251,7 @@ internal static class VoteCoordinator
             eligible = eligible.Append(VoteNetwork.LocalActorNumber).OrderBy(actor => actor).ToArray();
         }
 
-        float duration = Mathf.Clamp(Plugin.Settings.VotingDuration.Value, 2f, 60f);
+        float duration = VoteRules.ClampDuration(Plugin.Settings.VotingDuration.Value);
         Session.BeginVoting(Session.SessionId, eligible);
         _hostActorAtStart = VoteNetwork.LocalActorNumber;
         _votingEndsAt = Time.realtimeSinceStartup + duration;
@@ -272,7 +319,14 @@ internal static class VoteCoordinator
             return;
         }
 
-        MapCategory? winner = Session.Resolve(tiedCount => UnityEngine.Random.Range(0, tiedCount));
+        MapCategory? winner = Session.Resolve(
+            tiedCount => UnityEngine.Random.Range(0, tiedCount),
+            VoteRules.NormalizeTieBreak(Plugin.Settings.TieBreak.Value),
+            _lastWinner);
+        if (winner.HasValue)
+        {
+            _lastWinner = winner;
+        }
         Level? selected = winner.HasValue ? SelectionController.ChooseAndQueue(winner.Value) : null;
         if (!winner.HasValue)
         {
@@ -294,6 +348,7 @@ internal static class VoteCoordinator
 
         Session.EnterResult();
         _resultEndsAt = Time.realtimeSinceStartup + ResultStateSeconds;
+        ReleaseFirstMapGate("vote finished");
     }
 
     private static void ShowResult(MapCategory? winner, bool selectionSucceeded, string? visibleMapName)
@@ -473,6 +528,7 @@ internal static class VoteCoordinator
         SelectionController.ClearPendingSelection();
         Session.Reset();
         VoteUi.Close();
+        ReleaseFirstMapGate(reason);
     }
 
     private static bool TryInt(object value, out int result)

@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using VanillaOrModded.Core;
 
 namespace VanillaOrModded.Configuration;
 
@@ -7,12 +8,15 @@ internal sealed class ModConfig
     internal ConfigEntry<bool> VotingEnabled { get; }
     internal ConfigEntry<float> VotingDuration { get; }
     internal ConfigEntry<bool> EndEarlyWhenAllVoted { get; }
+    internal ConfigEntry<bool> VoteFirstMapOnNewSave { get; }
+    internal ConfigEntry<TieBreakMode> TieBreak { get; }
     internal ConfigEntry<bool> PreventMapRepeats { get; }
     internal ConfigEntry<int> MapHistoryLength { get; }
     internal ConfigEntry<bool> ShowChosenMapName { get; }
     internal ConfigEntry<string> ModdedMapBlacklist { get; }
     internal ConfigEntry<string> ModdedMapWhitelist { get; }
 
+    internal ConfigEntry<bool> ShowCountdown { get; }
     internal ConfigEntry<float> UiScale { get; }
     internal ConfigEntry<float> UiOffsetX { get; }
     internal ConfigEntry<float> UiOffsetY { get; }
@@ -27,11 +31,19 @@ internal sealed class ModConfig
             "Gameplay (Host)", "VotingDuration", 5f,
             new ConfigDescription(
                 "Voting duration in seconds. Only the host's value affects the lobby.",
-                new AcceptableValueRange<float>(2f, 60f)));
+                new AcceptableValueRange<float>(VoteRules.MinDurationSeconds, VoteRules.MaxDurationSeconds)));
 
         EndEarlyWhenAllVoted = config.Bind(
             "Gameplay (Host)", "EndEarlyWhenAllVoted", true,
             "Finish as soon as every eligible compatible participant has voted.");
+
+        VoteFirstMapOnNewSave = config.Bind(
+            "Gameplay (Host)", "VoteFirstMapOnNewSave", true,
+            "Hold the first map of a new save until the vote ends. Set to false to restore the old behavior if this causes problems. Only the host's value affects the lobby.");
+
+        TieBreak = config.Bind(
+            "Gameplay (Host)", "TieBreak", TieBreakMode.Random,
+            "How tied top categories are resolved. Random picks any tied option. FavorNotLast avoids the category that won the previous vote when another tied option exists.");
 
         PreventMapRepeats = config.Bind(
             "Gameplay (Host)", "PreventMapRepeats", true,
@@ -54,6 +66,10 @@ internal sealed class ModConfig
         ModdedMapWhitelist = config.Bind(
             "Gameplay (Host)", "ModdedMapWhitelist", string.Empty,
             "Optional comma, semicolon, or newline-separated modded map identifiers to allow. Empty allows every otherwise eligible modded map. Blacklist entries still win.");
+
+        ShowCountdown = config.Bind(
+            "UI (Local)", "ShowCountdown", true,
+            "Show the remaining vote time in the vote window. Only changes your own display.");
 
         UiScale = config.Bind(
             "UI (Local)", "UIScale", 1f,

@@ -73,3 +73,14 @@ Result: `PASS: 12 core acceptance tests`
 ## Runtime validation still recommended
 
 R.E.P.O. itself is not installed in the build container, so an in-game host plus client pass is still recommended before publication. In particular, visually inspect the popup at multiple resolutions and complete one vanilla and one modded transition. This is not represented as completed gameplay testing.
+
+## First map of a new save (needs in-game confirmation)
+
+Check these in game with `VoteFirstMapOnNewSave = true`:
+
+1. Start a brand-new save as host. The vote window must appear before the first level loads.
+2. The winning category must decide the first map. The log must show "Holding the first map of a new save" and then "Releasing the first map ... (vote finished)".
+3. With zero votes, the game must still load its own first map after the vote ends.
+4. Continue an existing save that has completed levels. No vote may appear before the next map from the lobby menu.
+5. As a client in a modded lobby, the vote window must appear and the client must vote.
+6. Set `VoteFirstMapOnNewSave = false`. The first map must load with no vote.
