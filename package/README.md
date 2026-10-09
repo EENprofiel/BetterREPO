@@ -38,7 +38,6 @@ This release contains **31 pinned Thunderstore dependencies**.
 - **No Swap Drop** `1.0.0`
 - **StickyGun** `1.0.0`
 - **FullHealth** `1.9.0`
-- **TruckLoot** `1.0.4`
 
 ### Progression & shop
 
@@ -55,7 +54,6 @@ This release contains **31 pinned Thunderstore dependencies**.
 - **FNAFLevel** `1.1.1`
 - **Wesleys Levels** `1.1.11`
 - **Woodland Mansion** `1.0.0`
-- **Minecraft Village** `1.0.12`
 - **Wesleys Manufacturer of Style** `1.1.0`
 - **LethalCompanyValuables** `1.3.0`
 
