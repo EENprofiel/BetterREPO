@@ -54,7 +54,6 @@ This release contains **31 pinned Thunderstore dependencies**.
 - **FNAFLevel** `1.1.1`
 - **Wesleys Levels** `1.1.11`
 - **Woodland Mansion** `1.0.0`
-- **Minecraft Village** `1.0.12`
 - **Wesleys Manufacturer of Style** `1.1.0`
 - **LethalCompanyValuables** `1.3.0`
 

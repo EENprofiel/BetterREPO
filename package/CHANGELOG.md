@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Removed `Venture_Fearless-Minecraft_Village`, the Minecraft Village map.
+- Existing r2modman profiles keep an installed copy of the map. Disable or uninstall it by hand, or use a clean profile.
+
 ## 1.2.0
 
 - Removed `Maflingus-TruckLoot`. It is out of date for game version 0.4.4 and threw thousands of errors at every level change, which made level loading slow and sometimes caused hangs.
