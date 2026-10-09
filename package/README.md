@@ -38,7 +38,6 @@ This release contains **31 pinned Thunderstore dependencies**.
 - **No Swap Drop** `1.0.0`
 - **StickyGun** `1.0.0`
 - **FullHealth** `1.9.0`
-- **TruckLoot** `1.0.4`
 
 ### Progression & shop
 
