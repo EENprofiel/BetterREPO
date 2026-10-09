@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion><Nullable>enable</Nullable><ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>TruckEnergyDisplay</AssemblyName><RootNamespace>TruckEnergyDisplay</RootNamespace>
-    <Version>1.2.0</Version><Deterministic>true</Deterministic>
+    <Version>1.3.0</Version><Deterministic>true</Deterministic>
     <RepoGameDir Condition="'$(RepoGameDir)' == ''">$(REPO_GAME_DIR)</RepoGameDir>
     <ManagedDir Condition="'$(ManagedDir)' == ''">$(RepoGameDir)/REPO_Data/Managed</ManagedDir>
     <BepInExCoreDir Condition="'$(BepInExCoreDir)' == ''">$(RepoGameDir)/BepInEx/core</BepInExCoreDir>

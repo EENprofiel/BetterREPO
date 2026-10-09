@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.0
 
 - Adds `Anchor` (four screen corners) and `Opacity` settings. Margins and scale now apply from the chosen corner, are clamped on screen, and update live.
 
