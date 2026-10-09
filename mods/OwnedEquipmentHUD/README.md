@@ -108,7 +108,7 @@ Bash:
 dotnet build -c Release -p:RepoGameDir="/path/to/REPO"
 ```
 
-The compiled `OwnedEquipmentHUD.dll` and `OwnedEquipmentHUD-1.1.0.zip` are written to `dist/`. The zip contains the DLL, manifest, README, changelog, and persistence research. Copy the DLL to `BepInEx/plugins/` or install the archive with your mod manager.
+The compiled `OwnedEquipmentHUD.dll` and `OwnedEquipmentHUD-1.1.0.zip` are written to `dist/`. The zip contains the DLL, manifest, icon, license, README, changelog, and persistence research. Copy the DLL to `BepInEx/plugins/` or install the archive with your mod manager.
 
 ## Compatibility note
 

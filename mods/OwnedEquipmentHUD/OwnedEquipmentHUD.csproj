@@ -55,7 +55,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(ThunderstorePackageDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstorePackageDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\manifest.json;$(MSBuildProjectDirectory)\README.md;$(MSBuildProjectDirectory)\CHANGELOG.md;$(MSBuildProjectDirectory)\docs\PERSISTENCE-RESEARCH.md" DestinationFolder="$(ThunderstorePackageDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\manifest.json;$(MSBuildProjectDirectory)\README.md;$(MSBuildProjectDirectory)\CHANGELOG.md;$(MSBuildProjectDirectory)\LICENSE;$(MSBuildProjectDirectory)\icon.png;$(MSBuildProjectDirectory)\docs\PERSISTENCE-RESEARCH.md" DestinationFolder="$(ThunderstorePackageDir)" />
     <ZipDirectory SourceDirectory="$(ThunderstorePackageDir)" DestinationFile="$(ThunderstoreZip)" Overwrite="true" />
     <Message Text="Thunderstore package created at $(ThunderstoreZip)" Importance="high" />
   </Target>
