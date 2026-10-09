@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- Documentation only. No mods or configuration changed.
+- Fixed the dependency count (29) and removed the claim about persistent truck valuables, which came from the removed TruckLoot.
+
 ## 1.3.0
 
 - Removed `Venture_Fearless-Minecraft_Village`, the Minecraft Village map.
