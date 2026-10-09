@@ -13,15 +13,23 @@ None of these have been live tested in a multiplayer game from this repository y
 
 ## Layout of a mod folder
 
+Every mod has the same set of top-level files:
+
 ```text
 mods/<ModName>/
   README.md              What the mod does, config and install notes
-  CHANGELOG.md           Release history (where present)
-  manifest.json          Thunderstore manifest (where present)
+  CHANGELOG.md           Release history
+  LICENSE                MIT license text
+  manifest.json          Thunderstore manifest (the only Thunderstore metadata file)
+  icon.png               Thunderstore icon, 256x256 PNG
   <ModName>.csproj       Build project
-  *.cs                   Plugin source
+  <source files>         Plugin source (see below)
   lib/                   Build-only reference DLLs, not committed (see lib/README.md)
 ```
+
+The manifest `version_number` must match the plugin version in code and the newest entry in `CHANGELOG.md`.
+
+Source files are not forced into one folder shape. Each mod keeps the structure that fits its size: flat files in the mod root, `src/`, or topic folders such as `Patches/`. Do not move source files only to make the folders look alike.
 
 Per-mod `.gitignore` files and the root `.gitignore` keep `bin/`, `obj/`, `dist/` and DLLs out of Git.
 
@@ -37,7 +45,7 @@ TruckEnergyDisplay also has an executable check project in `tests/` and a `packa
 
 ## Adding a new mod
 
-1. Create `mods/<ModName>/` with a README, csproj, source and (if it will be published) a `manifest.json`.
+1. Create `mods/<ModName>/` with a README, CHANGELOG, LICENSE, icon, manifest.json, csproj and source.
 2. Add a row to the table above and to the root `README.md`.
 3. Keep game assemblies and built DLLs out of Git.
 

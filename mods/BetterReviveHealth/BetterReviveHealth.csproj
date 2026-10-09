@@ -53,6 +53,6 @@
     <MakeDir Directories="$(ProjectDir)dist\BepInEx\plugins\BetterReviveHealth" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)dist\BepInEx\plugins\BetterReviveHealth" />
     <Copy SourceFiles="$(ProjectDir)README.md" DestinationFolder="$(ProjectDir)dist" />
-    <Copy SourceFiles="$(ProjectDir)thunderstore\manifest.json" DestinationFolder="$(ProjectDir)dist" />
+    <Copy SourceFiles="$(ProjectDir)manifest.json;$(ProjectDir)CHANGELOG.md;$(ProjectDir)LICENSE;$(ProjectDir)icon.png" DestinationFolder="$(ProjectDir)dist" />
   </Target>
 </Project>
