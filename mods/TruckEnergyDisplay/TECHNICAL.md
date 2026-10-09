@@ -1,4 +1,4 @@
-# Truck Energy Display 1.2.0: implementation and discovery
+# Truck Energy Display 1.3.0: implementation and discovery
 
 ## Evidence and scope
 

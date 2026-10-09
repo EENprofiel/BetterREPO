@@ -1,4 +1,4 @@
-# Truck Energy Display 1.2.0
+# Truck Energy Display 1.3.0
 
 A small, read-only R.E.P.O. HUD showing the shared truck charging-station reserve while you are in the Service Station. It does not display weapon batteries.
 
@@ -24,7 +24,7 @@ For manual installation the DLL belongs at:
 
 Replace/remove any older TruckEnergyDisplay DLL. Do not install two versions at once. Keep your existing config: the requested display switches retain their names. Legacy `DisplayMode`, `Enabled`, `ShowCrystalEquivalent`, and the old centered-position offsets are no longer used. This version is deliberately shop-only; use `ShowTruckEnergy` to hide it.
 
-**Multiplayer: the host and every player who wants the HUD must install 1.2.0.** Players without the mod can still join normally. A client whose host does not have the mod waits for host data instead of guessing from a local shopping list. Hiding the host's HUD does not disable synchronization.
+**Multiplayer: the host and every player who wants the HUD must install 1.3.0.** Players without the mod can still join normally. A client whose host does not have the mod waits for host data instead of guessing from a local shopping list. Hiding the host's HUD does not disable synchronization.
 
 ## What the display means
 

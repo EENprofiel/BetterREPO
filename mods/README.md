@@ -4,8 +4,8 @@ Source code for the individual mods that accompany the BetterREPO modpack. Each 
 
 | Folder | Version | What it does |
 | --- | --- | --- |
-| [VanillaOrModded](VanillaOrModded/) | 1.0.0 | Host-authoritative anonymous multiplayer voting between vanilla, modded or random maps. |
-| [TruckEnergyDisplay](TruckEnergyDisplay/) | 1.2.0 | Shop HUD for the shared truck charging station energy and Power Crystal purchase prediction. |
+| [VanillaOrModded](VanillaOrModded/) | 1.1.0 | Host-authoritative anonymous multiplayer voting between vanilla, modded or random maps. |
+| [TruckEnergyDisplay](TruckEnergyDisplay/) | 1.3.0 | Shop HUD for the shared truck charging station energy and Power Crystal purchase prediction. |
 | [OwnedEquipmentHUD](OwnedEquipmentHUD/) | 1.1.0 | Shop HUD showing reusable equipment the team already owns this run. |
 | [BetterReviveHealth](BetterReviveHealth/) | 1.0.0 | Host-configured health for players revived at an extraction point. |
 

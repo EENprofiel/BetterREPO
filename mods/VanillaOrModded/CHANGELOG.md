@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
 
 - Vote on the first map of a new save by holding the first `RunManager.ChangeLevel` call (`VoteFirstMapOnNewSave`). Needs in-game confirmation.
 - Added the host `TieBreak` option (`Random` or `FavorNotLast`).

@@ -1,4 +1,4 @@
-# VanillaOrModded 1.0.0 verification
+# VanillaOrModded 1.1.0 verification
 
 Verification performed on 2026-09-10.
 

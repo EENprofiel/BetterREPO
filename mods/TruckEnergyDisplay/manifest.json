@@ -1,6 +1,6 @@
 {
   "name": "TruckEnergyDisplay",
-  "version_number": "1.2.0",
+  "version_number": "1.3.0",
   "website_url": "",
   "description": "Shop-only truck energy HUD with host-synced crystal requirements and checkout predictions.",
   "dependencies": [

@@ -18,7 +18,7 @@ internal sealed class Plugin : BaseUnityPlugin
 {
     internal const string PluginGuid = "profiel.vanillaormodded";
     internal const string PluginName = "VanillaOrModded";
-    internal const string PluginVersion = "1.0.0";
+    internal const string PluginVersion = "1.1.0";
 
     internal static Plugin Instance { get; private set; } = null!;
     internal static new ManualLogSource Logger { get; private set; } = null!;

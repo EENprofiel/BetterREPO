@@ -15,7 +15,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     public const string PluginGuid = "com.lucasdoddema.truckenergydisplay";
     public const string PluginName = "Truck Energy Display";
-    public const string PluginVersion = "1.2.0";
+    public const string PluginVersion = "1.3.0";
     internal static ManualLogSource Log = null!;
     internal static ConfigEntry<bool> ShowTruckEnergy = null!, ShowCrystalRequirement = null!, ShowCheckoutPrediction = null!,
         ShowEnergyBar = null!, ShowPercentage = null!, ShowRawEnergy = null!;

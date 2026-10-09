@@ -10,13 +10,12 @@ BetterREPO focuses on removing common annoyances, making co-op progression smoot
 - Smoother multiplayer and shared progression.
 - Late joining with additional compatibility fixes.
 - A more flexible shop and inventory progression.
-- Persistent valuables left in the truck between levels.
 - Extra handcrafted and themed levels for more run variety.
 - Small fun additions without excessive gameplay bloat.
 
 ## Included packages
 
-This release contains **31 pinned Thunderstore dependencies**.
+This release contains **29 pinned Thunderstore dependencies**.
 
 ### Core & compatibility
 
