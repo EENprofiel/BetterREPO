@@ -80,7 +80,10 @@ dist/
 │   └── plugins/
 │       └── BetterReviveHealth/
 │           └── BetterReviveHealth.dll
+├── CHANGELOG.md
+├── LICENSE
 ├── README.md
+├── icon.png
 └── manifest.json
 ```
 
