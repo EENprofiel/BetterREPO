@@ -30,3 +30,23 @@ Removing a dependency from the modpack does not guarantee that an already-instal
 ## Mods
 
 Mod source lives in `mods/<ModName>/`, separate from the modpack in `package/`. Mods are versioned, built and published on their own schedule; the modpack's version and CI only cover `package/`. See [mods/README.md](mods/README.md) for build notes. Changing a mod does not require a modpack release unless the pack's pinned dependency on it changes.
+
+## Releasing a mod
+
+Each mod has its own version and its own tag: `<ModName>-vX.Y.Z`, for example `VanillaOrModded-v1.0.1`. The modpack keeps tags like `v1.2.0`.
+
+1. Change the version in three places: `manifest.json`, `PluginVersion` in the plugin source, and the csproj `<Version>` if it has one.
+2. Add a `## X.Y.Z` section to the mod's `CHANGELOG.md`.
+3. Run `python scripts/check_mods.py`. It must pass.
+4. Merge to `main`, then create and push the tag: `git tag VanillaOrModded-v1.0.1 && git push origin VanillaOrModded-v1.0.1`.
+5. The `Mod release` workflow checks that the tag, manifest and changelog agree, builds the mod, and creates a GitHub release with `<ModName>-X.Y.Z.zip` attached.
+
+All four mods can be released from CI. The release builds against the same NuGet stub packages as the normal CI build. The DLL does not contain the stubs. It binds to the real game assemblies when the game loads it.
+
+To package a mod locally instead, run `dotnet build -c Release` in the mod folder, then `python scripts/package_mod.py <ModName>`. This writes `dist/<ModName>-X.Y.Z.zip`.
+
+A release is only a build. Test the mod in the game before you push the tag.
+
+### Thunderstore upload
+
+Without a token, upload the ZIP by hand at thunderstore.io. To upload from CI, add the repository secret `THUNDERSTORE_TOKEN` (a Thunderstore service account token). The workflow then runs `tcli publish` after the GitHub release. Namespace and categories per mod are in `scripts/mods.json`.

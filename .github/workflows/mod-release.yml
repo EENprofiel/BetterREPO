@@ -1,0 +1,57 @@
+name: Mod release
+# Tags look like VanillaOrModded-v1.0.0. Modpack tags (v1.2.3) are handled by build.yml.
+on:
+  push:
+    tags: ["*-v[0-9]*.[0-9]*.[0-9]*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      THUNDERSTORE_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read tag
+        run: |
+          echo "MOD=${GITHUB_REF_NAME%-v*}" >> "$GITHUB_ENV"
+          echo "VERSION=${GITHUB_REF_NAME##*-v}" >> "$GITHUB_ENV"
+      - name: Check manifest, changelog and tag
+        run: python scripts/check_mods.py --tag "$GITHUB_REF_NAME"
+      - uses: ./.github/actions/setup-mods
+      - name: Build and test
+        run: |
+          dotnet build "mods/$MOD/$MOD.csproj" -c Release
+          shopt -s nullglob
+          for p in mods/$MOD/tests/*.csproj mods/$MOD/*.Tests/*.csproj; do
+            dotnet run --project "$p" -c Release || exit 1
+          done
+      - run: python scripts/package_mod.py "$MOD"
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "dist/$MOD-$VERSION.zip" --title "$MOD $VERSION" --generate-notes
+      - name: Publish to Thunderstore
+        if: env.THUNDERSTORE_TOKEN != ''
+        run: |
+          dotnet tool install -g tcli
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          python - <<'PY' > "$RUNNER_TEMP/thunderstore.toml"
+          import json, os
+          mod = os.environ["MOD"]
+          meta = json.load(open("scripts/mods.json"))[mod]
+          m = json.load(open(f"mods/{mod}/manifest.json"))
+          print('[config]\nschemaVersion = "0.0.1"\n\n[package]')
+          print(f'namespace = "{meta["namespace"]}"\nname = "{mod}"\nversionNumber = "{m["version_number"]}"')
+          print(f'description = {json.dumps(m["description"])}\nwebsiteUrl = {json.dumps(m["website_url"])}\ncontainsNsfwContent = false')
+          print("\n[package.dependencies]")
+          for d in m["dependencies"]:
+              author, name, version = d.split("-", 2)
+              print(f'"{author}-{name}" = "{version}"')
+          print('\n[publish]\nrepository = "https://thunderstore.io"\ncommunities = ["repo"]')
+          print("categories = " + json.dumps(meta["categories"]))
+          PY
+          tcli publish --config-path "$RUNNER_TEMP/thunderstore.toml" --file "dist/$MOD-$VERSION.zip" --token "$THUNDERSTORE_TOKEN"

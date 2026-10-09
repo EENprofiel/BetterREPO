@@ -43,11 +43,27 @@ The mods target BepInEx plugins (`netstandard2.1`, .NET 8 SDK). Install the .NET
 
 TruckEnergyDisplay also has an executable check project in `tests/` and a `package.py` that builds the Thunderstore ZIP.
 
+## Continuous integration
+
+`.github/workflows/mods.yml` runs on every pull request that touches `mods/`:
+
+| Check | Covers |
+| --- | --- |
+| Layout and versions | All four mods. Required files, 256x256 icon, manifest, changelog heading and code version agree (`scripts/check_mods.py`). |
+| Build and test all mods | A Release build of every mod against the NuGet stub packages (see Building), with MenuLib and REPOLib downloaded from Thunderstore for VanillaOrModded. Then every test project in `mods/*/tests/` or `mods/*/*.Tests/`, which includes the TruckEnergyDisplay checks. |
+
+The stubs have no method bodies. CI proves that the code compiles and that the tests pass. It cannot prove that a mod works in the game. The check of TruckEnergyDisplay against the real game assembly only runs when you pass a game folder locally. In-game testing stays a manual step.
+
+## Releasing a mod
+
+See "Releasing a mod" in [MAINTENANCE.md](../MAINTENANCE.md). Tags look like `VanillaOrModded-v1.0.0`.
+
 ## Adding a new mod
 
 1. Create `mods/<ModName>/` with a README, CHANGELOG, LICENSE, icon, manifest.json, csproj and source.
 2. Add a row to the table above and to the root `README.md`.
-3. Keep game assemblies and built DLLs out of Git.
+3. Add the mod to `scripts/mods.json`.
+4. Keep game assemblies and built DLLs out of Git.
 
 ## Conventions to keep
 
