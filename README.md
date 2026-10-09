@@ -35,7 +35,7 @@ See [mods/README.md](mods/README.md) for the list of mods, how to build them and
 
 ## Current version
 
-**1.3.0**
+**1.3.1**
 
 The `package/` directory is the source of truth for the Thunderstore package.
 
