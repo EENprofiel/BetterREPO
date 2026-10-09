@@ -1,6 +1,6 @@
 {
   "name": "BetterREPO",
-  "version_number": "1.1.0",
+  "version_number": "1.2.0",
   "website_url": "",
   "description": "A curated R.E.P.O. modpack with quality-of-life fixes, better co-op progression, extra levels, shop improvements, late joining, and a few fun additions.",
   "dependencies": [
@@ -33,7 +33,6 @@
     "R3DB4R0N-StickyGun-1.0.0",
     "R3DB4R0N-ExtraInventorySlotUpgrade-1.0.0",
     "Randez-MedkitScatter-0.0.1",
-    "AST_Studios-LateRepo_Fix-1.1.4",
-    "Maflingus-TruckLoot-1.0.4"
+    "AST_Studios-LateRepo_Fix-1.1.4"
   ]
 }
