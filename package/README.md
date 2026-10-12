@@ -15,7 +15,7 @@ BetterREPO focuses on removing common annoyances, making co-op progression smoot
 
 ## Included packages
 
-This release contains **29 pinned Thunderstore dependencies**.
+This release contains **28 pinned Thunderstore dependencies**.
 
 ### Core & compatibility
 
@@ -50,7 +50,6 @@ This release contains **29 pinned Thunderstore dependencies**.
 ### Extra levels & content
 
 - **MinecraftStrongholdLevel** `1.14.0`
-- **FNAFLevel** `1.1.1`
 - **Wesleys Levels** `1.1.11`
 - **Woodland Mansion** `1.0.0`
 - **Wesleys Manufacturer of Style** `1.1.0`

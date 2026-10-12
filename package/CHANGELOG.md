@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0
+
+- Removed `OrtonLongGaming-FNAFLevel`, the Five Nights at Freddy's map.
+- Existing r2modman profiles keep an installed copy of the map. Disable or uninstall it by hand, or use a clean profile.
+- Curated profile now contains 28 Thunderstore dependencies.
+
 ## 1.3.1
 
 - Documentation only. No mods or configuration changed.
